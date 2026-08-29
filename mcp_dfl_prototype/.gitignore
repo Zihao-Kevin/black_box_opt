@@ -1,0 +1,13 @@
+# Scratch copies of the notebook -- never share these.
+*.ipynb.bak*
+*copy.ipynb
+.ipynb_checkpoints/
+
+# Dated snapshots written by save_hist(); the canonical results_{mcp,plain}.json
+# is the one to keep.
+results_*_[0-9]*.json
+
+# .env is already ignored repo-wide, repeated here so a copy of this folder
+# on its own still refuses to commit it.
+.env
+!.env.example

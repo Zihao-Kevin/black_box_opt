@@ -1,0 +1,23 @@
+
+=== train ===
+reinforce_b seed 0: train 0.0041  held-out 0.2273
+reinforce_b seed 1: train 0.0010  held-out 0.2104
+reinforce_b seed 2: train 0.0032  held-out 0.1658
+rloo seed 0: train 0.0016  held-out 0.2787
+rloo seed 1: train 0.0250  held-out 0.1628
+rloo seed 2: train 0.0273  held-out 0.1585
+qcv seed 0: train 0.0264  held-out 0.2492
+qcv seed 1: train 0.0111  held-out 0.1984
+qcv seed 2: train 0.0419  held-out 0.1589
+qcv_exact seed 0: train 0.0029  held-out 0.2508
+qcv_exact seed 1: train 0.0003  held-out 0.1570
+qcv_exact seed 2: train 0.0001  held-out 0.2643
+
+mean oracle calls to train-regret threshold (3 seeds):
+  REINFORCE+baseline     <0.1:    400  <0.03:    800  <0.01:   1233   final train 0.0028 held-out 0.2012
+  RLOO (K=2)             <0.1:    500  <0.03:   2167  <0.01:   1800   final train 0.0180 held-out 0.2000
+/Users/kevinzzh/notes_md/blogs/black-box DFL/toy_token_q/run_dfl.py:211: RuntimeWarning: Mean of empty slice
+  row.append(np.nanmean(hits))
+  Q-CV (learned)         <0.1:    533  <0.03:   1500  <0.01:    nan   final train 0.0265 held-out 0.2022
+  Q-CV (exact Q)         <0.1:    200  <0.03:    367  <0.01:    600   final train 0.0011 held-out 0.2240
+saved figs/dfl_budget.png
