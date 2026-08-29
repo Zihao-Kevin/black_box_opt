@@ -1,0 +1,23 @@
+# LaTeX build artifacts
+.aux/
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.out
+*.toc
+*.bbl
+*.blg
+*.nav
+*.snm
+*.vrb
+
+# macOS / Python
+.DS_Store
+__pycache__/
+
+# secrets
+.env
+!.env.example
