@@ -1,0 +1,339 @@
+{
+ "filesystem": {
+  "instructions": "Lists and reads the files of the project workspace.",
+  "tools": [
+   {
+    "name": "list_files",
+    "description": "List every file in the workspace (relative paths).",
+    "schema": {
+     "properties": {},
+     "type": "object",
+     "title": "list_filesArguments"
+    }
+   },
+   {
+    "name": "read_file",
+    "description": "Read a text file from the workspace by relative path.",
+    "schema": {
+     "properties": {
+      "path": {
+       "title": "Path",
+       "type": "string"
+      }
+     },
+     "required": [
+      "path"
+     ],
+     "type": "object",
+     "title": "read_fileArguments"
+    }
+   }
+  ]
+ },
+ "grep": {
+  "instructions": "Searches the text of every workspace file for a regular expression.",
+  "tools": [
+   {
+    "name": "search",
+    "description": "Search all workspace files for a regex; returns `path:line: text` for each matching line.",
+    "schema": {
+     "properties": {
+      "pattern": {
+       "title": "Pattern",
+       "type": "string"
+      },
+      "max_hits": {
+       "default": 30,
+       "title": "Max Hits",
+       "type": "integer"
+      }
+     },
+     "required": [
+      "pattern"
+     ],
+     "type": "object",
+     "title": "searchArguments"
+    }
+   }
+  ]
+ },
+ "git": {
+  "instructions": "Reads the git history of the workspace repository (log, show).",
+  "tools": [
+   {
+    "name": "git_log",
+    "description": "Commit history (hash, author, date, subject), newest first; optionally only commits touching `path`.",
+    "schema": {
+     "properties": {
+      "path": {
+       "default": "",
+       "title": "Path",
+       "type": "string"
+      },
+      "n": {
+       "default": 15,
+       "title": "N",
+       "type": "integer"
+      }
+     },
+     "type": "object",
+     "title": "git_logArguments"
+    }
+   },
+   {
+    "name": "git_show",
+    "description": "Show one commit: metadata and the list of files it changed.",
+    "schema": {
+     "properties": {
+      "rev": {
+       "default": "HEAD",
+       "title": "Rev",
+       "type": "string"
+      }
+     },
+     "type": "object",
+     "title": "git_showArguments"
+    }
+   }
+  ]
+ },
+ "sqlite": {
+  "instructions": "Runs read-only SQL queries against the project database data.db.",
+  "tools": [
+   {
+    "name": "list_tables",
+    "description": "List the tables of the database with their CREATE statements.",
+    "schema": {
+     "properties": {},
+     "type": "object",
+     "title": "list_tablesArguments"
+    }
+   },
+   {
+    "name": "query",
+    "description": "Run a read-only SQL SELECT and return the rows as text.",
+    "schema": {
+     "properties": {
+      "sql": {
+       "title": "Sql",
+       "type": "string"
+      },
+      "max_rows": {
+       "default": 50,
+       "title": "Max Rows",
+       "type": "integer"
+      }
+     },
+     "required": [
+      "sql"
+     ],
+     "type": "object",
+     "title": "queryArguments"
+    }
+   }
+  ]
+ },
+ "fetch": {
+  "instructions": "Fetches a web page by URL (the company intranet) and returns its text.",
+  "tools": [
+   {
+    "name": "fetch",
+    "description": "HTTP GET a URL and return the page as plain text (HTML tags stripped).",
+    "schema": {
+     "properties": {
+      "url": {
+       "title": "Url",
+       "type": "string"
+      }
+     },
+     "required": [
+      "url"
+     ],
+     "type": "object",
+     "title": "fetchArguments"
+    }
+   }
+  ]
+ },
+ "notes": {
+  "instructions": "Searches the team's shared notes (rotations, runbooks, decisions).",
+  "tools": [
+   {
+    "name": "list_notes",
+    "description": "List the titles of all team notes.",
+    "schema": {
+     "properties": {},
+     "type": "object",
+     "title": "list_notesArguments"
+    }
+   },
+   {
+    "name": "search_notes",
+    "description": "Full-text search over the team notes; returns matching notes (title and body).",
+    "schema": {
+     "properties": {
+      "query": {
+       "title": "Query",
+       "type": "string"
+      }
+     },
+     "required": [
+      "query"
+     ],
+     "type": "object",
+     "title": "search_notesArguments"
+    }
+   }
+  ]
+ },
+ "python": {
+  "instructions": "Executes a Python snippet in an isolated sandbox (no access to the workspace files) and returns its output.",
+  "tools": [
+   {
+    "name": "run_python",
+    "description": "Run Python code in a fresh interpreter (10 s limit); returns stdout and stderr. The sandbox cannot see workspace files: pass data in the code itself.",
+    "schema": {
+     "properties": {
+      "code": {
+       "title": "Code",
+       "type": "string"
+      }
+     },
+     "required": [
+      "code"
+     ],
+     "type": "object",
+     "title": "run_pythonArguments"
+    }
+   }
+  ]
+ },
+ "pytest": {
+  "instructions": "Runs the project's test suite and reports the results.",
+  "tools": [
+   {
+    "name": "run_tests",
+    "description": "Run `pytest` in the workspace (optionally with extra arguments, e.g. a path or -k expr); returns the summary.",
+    "schema": {
+     "properties": {
+      "args": {
+       "default": "",
+       "title": "Args",
+       "type": "string"
+      }
+     },
+     "type": "object",
+     "title": "run_testsArguments"
+    }
+   }
+  ]
+ },
+ "lint": {
+  "instructions": "Runs the static linter (pyflakes) on a workspace file and reports every warning.",
+  "tools": [
+   {
+    "name": "lint",
+    "description": "Lint one Python file (relative path) with pyflakes; returns the warnings and their count.",
+    "schema": {
+     "properties": {
+      "path": {
+       "title": "Path",
+       "type": "string"
+      }
+     },
+     "required": [
+      "path"
+     ],
+     "type": "object",
+     "title": "lintArguments"
+    }
+   }
+  ]
+ },
+ "write_file": {
+  "instructions": "Creates or overwrites a text file in the project workspace.",
+  "tools": [
+   {
+    "name": "write_file",
+    "description": "Write `content` to the workspace file at the relative `path` (parent directories are created).",
+    "schema": {
+     "properties": {
+      "path": {
+       "title": "Path",
+       "type": "string"
+      },
+      "content": {
+       "title": "Content",
+       "type": "string"
+      }
+     },
+     "required": [
+      "path",
+      "content"
+     ],
+     "type": "object",
+     "title": "write_fileArguments"
+    }
+   }
+  ]
+ },
+ "mail": {
+  "instructions": "Sends e-mail from the agent's company mailbox.",
+  "tools": [
+   {
+    "name": "send_mail",
+    "description": "Send an e-mail to the address `to` with the given subject and body.",
+    "schema": {
+     "properties": {
+      "to": {
+       "title": "To",
+       "type": "string"
+      },
+      "subject": {
+       "title": "Subject",
+       "type": "string"
+      },
+      "body": {
+       "title": "Body",
+       "type": "string"
+      }
+     },
+     "required": [
+      "to",
+      "subject",
+      "body"
+     ],
+     "type": "object",
+     "title": "send_mailArguments"
+    }
+   }
+  ]
+ },
+ "ticket": {
+  "instructions": "Creates tickets in the team's issue tracker.",
+  "tools": [
+   {
+    "name": "create_ticket",
+    "description": "Open a new ticket in the issue tracker with the given title and description.",
+    "schema": {
+     "properties": {
+      "title": {
+       "title": "Title",
+       "type": "string"
+      },
+      "body": {
+       "default": "",
+       "title": "Body",
+       "type": "string"
+      }
+     },
+     "required": [
+      "title"
+     ],
+     "type": "object",
+     "title": "create_ticketArguments"
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,762 @@
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath, amssymb, mathtools, amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\AtBeginDocument{%
+  \setlength{\abovedisplayskip}{4pt}\setlength{\belowdisplayskip}{4pt}%
+  \setlength{\abovedisplayshortskip}{2pt}\setlength{\belowdisplayshortskip}{2pt}}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{cleveref}
+
+\IfFileExists{math_commands.tex}{\input{math_commands}}{}
+% Fallbacks in case math_commands.tex is absent (e.g. compiling this file standalone).
+\providecommand{\E}{\mathbb{E}}
+\providecommand{\gL}{\mathcal{L}}
+\providecommand{\Var}{\operatorname{Var}}
+\providecommand{\R}{\mathbb{R}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\theoremstyle{definition}
+\newtheorem{example}[theorem]{Example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NOTATION (paper-wide; see Table 1)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\ctx}[1]{z_{#1}}                 % conditioning context of coordinate j
+\newcommand{\score}[1]{s_{#1}}               % score of coordinate j at the sampled value
+\newcommand{\ghat}[1]{\hat g[#1]}            % estimator with control variate #1
+\newcommand{\gtrue}{g}                       % true gradient
+\newcommand{\rf}{\hat g_{\mathrm{SF}}}       % plain score-function estimator
+\newcommand{\Dstar}{\Delta^{\star}}
+\newcommand{\cstar}{c^{\star}}
+\newcommand{\VQ}{V_{Q}}
+\newcommand{\pj}[1]{p_{#1}}                  % p_j(v) shorthand
+
+\title{Beyond the Conditional Mean: Variance-Optimal Control Variates for Learning Through a Black Box}
+% \author{Zihao Zhao}
+\date{July 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Many machine learning pipelines contain a non-differentiable black box, e.g., a solver in decision-focused learning (DFL) or a tool-using LLM agent. The score-function estimator is unbiased in this case, but it has high variance and gives the same credit to every predicted parameter. A common remedy is a control variate built from a learned value function of each parameter. In this paper, we ask what the control variate should predict. We show that the value function is only optimal for each parameter alone: when the network weights are shared across parameters and the loss has interactions between them, it is not variance-optimal, even if it is exact. We derive the variance-optimal control variate in closed form, which adds a correction term to the value function. This gives learned control variates a target and a ceiling, and the variance that the correction can remove is controlled by the alignment of score functions across parameters, which can be computed before any oracle call. In a quadratic program, the optimal correction removes up to 98\% of the variance left by the value function. When an LLM configures MCP servers or screens proteins on a real fitness landscape, it removes 27--74\%, and learned corrections remove 22--59\%. In low signal-to-noise training, REINFORCE collapses, while control variates with the value function and with the optimal correction reach 81\% and 88\% success.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+
+Many learning systems need to learn through a component that is not differentiable. A predictor reads a context and outputs a vector of parameters, and then a black-box oracle evaluates the parameters and returns a scalar loss. In decision-focused learning (DFL)~\cite{elmachtoub2022,mandi2024}, the predicted parameters define an optimization problem, and the loss is the regret of the decision made by the solver. In LLM agents, the predicted parameters can be a tool configuration, e.g., which Model Context Protocol (MCP) servers the agent is allowed to call~\cite{mcp2024}. In AI for science, the predicted parameters describe a design, and the loss is measured by a wet-lab assay~\cite{wu2016gb1}. In all these cases, the loss is opaque, so we have no access to its gradient, and each oracle call can potentially be expensive.
+
+Existing solutions fall into two groups. One way is to learn a differentiable surrogate model of the black-box oracle and backpropagate through it~\cite{shah2022lodl,zharmagambetov2023lancer}. This saves oracle calls, but the approximation error becomes a bias of the gradient, so the predictor can converge to a wrong solution. The other way is the score function (REINFORCE) estimator~\cite{williams1992,silvestri2023}, which is unbiased but leads to two major challenges: (C1) high variance, which grows with the number of predicted parameters~\cite{tokui2017,SSM23}, and (C2) equal credit for each parameter, since all of them receive the same scalar loss. This is the same issue that makes reinforcement learning inefficient given a single final reward, and a value function that judges each action is a natural remedy~\cite{sutskever2025dwarkesh}.
+
+An action-dependent control variate can solve both challenges. We learn a model of the loss, subtract it inside the score-function estimator, and add its expectation back. The gradient stays unbiased for any learned model, and the model error only affects the variance. Thus, the critical question is no longer how accurate the learned model is, but \emph{what the learned model should predict}. The common answer is the value function of each parameter, i.e., the expected loss when this parameter takes a given value, which is known to be the best choice when each parameter is predicted by its own weights~\cite{tokui2017}.
+
+We show that this answer is wrong once the weights are shared, which is the common case: one network predicts all parameters of the downstream problem, and one LLM outputs all decisions. With shared weights, the decisions are not separate. The term that the value function leaves for one decision still moves with the values sampled for the other decisions, and the value function cannot remove it, because it only looks at one decision at a time. A control variate that looks across decisions can. Already with two shared binary parameters, the exact value function leaves a nonzero variance, while a proper correction drives it to zero (\Cref{ex:two-bernoulli}).
+
+In this paper, we do not propose another control variate. We ask which one is optimal, and derive it in closed form. We consider control variates that judge one parameter at a time, i.e., that say what the loss would be for each value this parameter could take. For this family, the expectation that has to be added back is a small sum over these values, so it is computed exactly, no oracle call is wasted on it, and the estimator stays unbiased for any learned model. The optimum is the value function plus a correction across parameters, and we also get the exact amount of variance this correction removes.
+
+This changes what a critic should be trained to predict, and it says in advance whether the change is worth the trouble. The correction is decided by the predictor rather than by the black box. It is large when different decisions move the same weights, it is zero when they do not, and which case we are in can be read off the network before any oracle call. In our LLM experiments, moving the LoRA adapter from the last down-projection to the attention projections turns the correction from the dominant part of the variance reduction ($62\%$ of what the value function leaves) into a negligible one ($9\%$). The correction also matters most where current practice struggles. When the reward is all-or-nothing and arrives only at the end, which is the typical case for an LLM agent, the value function removes almost no variance, while the optimal control variate still halves it.
+
+Computing the exact correction needs the loss on all outcomes, so it is a target and a ceiling rather than a drop-in algorithm. We show how to approach it: both the value function and the correction can be computed from a single reward model, and the variance we then lose is exactly a quadratic form of the error of that reward model. Thus, what limits a learned control variate is the reward data, not the critic architecture.
+
+Our contributions are summarized as follows:
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{The value function is not variance-optimal.} We build an estimator family whose control variate predicts one-coordinate sweeps, so that its expectation is computed exactly and each parameter gets its own credit (\Cref{sec:family}), and we derive the variance-optimal control variate of this family in closed form (\Cref{thm:optimal}). It is the value function plus a correction, and the correction is zero exactly in the cases covered by prior work, i.e., an additively separable loss or unshared weights.
+    % TODO(C2): tentative, proposed by the assistant; the user was unsure what the second contribution should be.
+    \item \textbf{A test before training, and a recipe after it.} The gain of the correction has a closed form in terms of the score alignment of the predictor, which needs no oracle call (\Cref{sec:toy}). To approach the optimum, we fit the value function by regression and learn only the correction on top of it, give a local closed-form correction (\Cref{sec:local_delta}), and reduce both terms to one reward model whose error has an exact variance cost (\Cref{sec:plugin}).
+    \item \textbf{Experiments in multiple settings.} We compute all variances exactly in a predict-then-optimize quadratic program, in Llama-3.2-3B configuring MCP servers for both an exact-match oracle and a live GPT-4.1-mini agent, and in a DFL pipeline on the GB1 protein fitness landscape. The optimal correction removes up to $98\%$ of the variance left by the value function, $27$--$74\%$ in the LLM settings, and learned corrections remove $22$--$59\%$. We also map the limits: the correction helps little when the score functions are nearly orthogonal, and it does not speed up training when the per-step signal-to-noise ratio is already high. In the low signal-to-noise regime, REINFORCE collapses on 3 of 4 seeds, while the optimal control variate converges on all of them.
+\end{enumerate}
+
+\section{Related Work}\label{sec:related}
+
+\paragraph{Variance reduction for score-function estimators.}
+The score-function estimator~\cite{williams1992} is the standard way to learn through a non-differentiable loss, and it has also been used for DFL~\cite{silvestri2023}. The most common way to reduce its variance is a baseline, which can be a constant~\cite{weaver2001,greensmith2004}, a learned function~\cite{mnih2014nvil}, the mean of other samples~\cite{kool2019,shao2024}, or derived for each token of a long LLM response~\cite{otb2026}. A baseline does not depend on the action, so every decision still receives the same credit. Action-dependent control variates remove this limitation, and they have been built from continuous relaxations~\cite{tmm+17,GCW+18}, Stein's identity~\cite{liu2018}, factorized policies~\cite{wu2018}, and discrete structures~\cite{titsias2022,shi2022}, although their gain over a baseline can be small in practice~\cite{tucker2018}. Known optimality results are for baselines. The optimal baseline has a closed form~\cite{weaver2001,greensmith2004,otb2026}, and so does the optimal baseline that depends on the other action dimensions, when the scores of different dimensions are orthogonal~\cite{wu2018}. Action-dependent control variates are instead learned, by regression or by directly minimizing the variance. This can find a good control variate, but it does not say what the optimum is. Our work is complementary to these methods. We characterize the optimum over all per-coordinate control variates without assuming orthogonal scores. This tells what a learned control variate should predict, how much it can gain over the value function, and when it can gain nothing.
+
+\paragraph{Exact marginalization.}
+Another line of work sums out one variable at a time instead of sampling it~\cite{titsias2015,liu2019,tokui2017,SSM23}. In our notation, these methods use $c=Q$ with the loss evaluated at every value of every variable. This choice is variance-optimal when each variable has its own parameters~\cite{tokui2017}, while the shared-parameter case, the common one in deep models, has been left open~\cite{SSM23}. Our results answer this question: with shared parameters, $Q$ is no longer optimal, and the optimal control variate has a closed form.
+
+\paragraph{Decision-focused learning.}
+DFL trains the predictor with the loss of the induced decision~\cite{elmachtoub2022,mandi2024}. Most methods differentiate through the optimization problem~\cite{amos2017optnet,donti2017,wilder2019} or a smoothed version of it~\cite{berthet2020,vlastelica2020}, which needs access to the structure of the problem. When the problem is a black box, a common approach is to learn a differentiable surrogate of the decision loss~\cite{shah2022lodl,zharmagambetov2023lancer}. We also learn a model of the loss, but only use it to reduce the variance of an unbiased estimator, so its error never becomes a bias.
+
+\paragraph{Reward models in off-policy evaluation.}
+Our plug-in analysis (\Cref{sec:plugin}) is related to the direct method and the doubly robust estimator~\cite{dudik2011}, where a reward model gives the expectation and the sampled reward corrects it. The difference is that we estimate a gradient instead of a value, and the optimal correction is not the conditional mean.
+
+\section{Problem Statement}\label{sec:problem}
+
+\paragraph{Setting.}
+For a context $x$, a stochastic predictor parameterized by $\theta\in\R^{P}$ samples a vector $b=(b_1,\dots,b_d)$, where each $b_j$ takes values in a finite set $\mathcal V$ of size $V$ (the continuous case is discussed in \Cref{sec:toy}). We write the distribution as
+\begin{align}\label{eq:policy}
+    p(b\mid x,\theta)=\prod_{j=1}^{d}\pj{j}(b_j\mid \ctx{j},x,\theta),
+\end{align}
+where $\ctx{j}$ is the context of coordinate $j$. We consider two cases. For a \emph{factorized} predictor, the coordinates are independent given $x$, and we set $\ctx{j}=b_{-j}$. This is the standard predictor in DFL, which outputs all parameters at once. For an \emph{autoregressive} predictor, e.g., an LLM that outputs one decision after another, we set $\ctx{j}=b_{<j}$. In both cases, we only use the fact that $b_j$ is sampled from a known categorical distribution given $\ctx{j}$. For simplicity, we write $\pj{j}(v)$ for $\pj{j}(v\mid\ctx{j},x,\theta)$. The notation is summarized in \Cref{tab:notation}.
+
+Then we consider the following problem:
+\begin{align}\label{eq:objective}
+    \min_{\theta}\ \gL(\theta):=\E_{p(b\mid\theta)}\big[f(b)\big]=\E_{p(b\mid\theta)}\big[\mathrm{Eval}\big(\mathrm{Oracle}(b)\big)\big].
+\end{align}
+In DFL, $\mathrm{Oracle}$ solves the downstream problem with the predicted parameters $b$, and $\mathrm{Eval}$ evaluates the decision under the true parameters. Thus, $f$ is the decision regret, which is piecewise constant in $b$. We assume a deterministic oracle in the main text, and discuss the noisy case in \Cref{rem:noise}.
+
+\paragraph{REINFORCE.}
+To optimize $\theta$, we need to find the gradient $\nabla_\theta\gL$. But since our oracle is a black box, we have no access to its gradient. Thus, we resort to the REINFORCE (a.k.a.\ score-function) method~\cite{williams1992} (see \Cref{sec:reinforce}):
+\begin{align}\label{eq:sf}
+    \gtrue:=\nabla_\theta\gL(\theta)=\E\Big[f(b)\sum_{j=1}^{d}\score{j}\Big],
+    \qquad
+    \score{j}(v):=\nabla_\theta\log\pj{j}(v),\quad \score{j}:=\score{j}(b_j),
+\end{align}
+and the plain estimator is $\rf:=f(b)\sum_j\score{j}$. For a softmax head with logits $\zeta_j=h_j(x,\theta)\in\R^{V}$ and Jacobian $J_j:=\partial\zeta_j/\partial\theta\in\R^{V\times P}$, the score is $\score{j}(v)=J_j^{\top}(e_v-\pj{j})$. The Jacobians $J_j$ encode how the parameters are shared across coordinates.
+
+However, directly applying REINFORCE leads to two major challenges:
+\begin{itemize}
+    \item \textbf{C1: High variance.} The variance of $\rf$ grows linearly with $d$.
+    \item \textbf{C2: Equal credit for each parameter $b_j$.} All coordinates receive the same $f(b)$, although the downstream problem may only depend on a few of them.
+\end{itemize}
+A rich line of work employs control variates to tackle C1. Exact marginalization can tackle C2, but it needs $d\cdot V$ oracle calls per step.
+
+\begin{table}[t]
+\centering\small
+\caption{Notation. Expectations are under $p(b\mid x,\theta)$ unless stated otherwise.}
+\label{tab:notation}
+\begin{tabular}{ll}
+\toprule
+$b=(b_1,\dots,b_d)$, $\mathcal V$, $V$ & sampled vector; value set of each coordinate; its size \\
+$\ctx{j}$ & context of coordinate $j$ ($b_{-j}$ factorized, $b_{<j}$ autoregressive) \\
+$\pj{j}(v)$ & $\pj{j}(v\mid\ctx{j},x,\theta)$, distribution of coordinate $j$ \\
+$\score{j}(v)$, $\score{j}$ & score $\nabla_\theta\log\pj{j}(v)$; its value at the sampled $b_j$ \\
+$J_j$ & head Jacobian $\partial\zeta_j/\partial\theta$, so $\score{j}(v)=J_j^{\top}(e_v-\pj{j})$ \\
+$f$, $\gL$, $\gtrue$ & black-box loss; objective $\E f$; gradient $\nabla_\theta\gL$ \\
+$c_j(\ctx{j},v)$, $\bar c_j$ & control variate of coordinate $j$; its mean $\sum_v\pj{j}(v)c_j(\ctx{j},v)$ \\
+$\ghat{c}$ & estimator \eqref{eq:family} with control variate $c=(c_1,\dots,c_d)$ \\
+$Q_j(\ctx{j},v)$ & conditional mean $\E[f\mid\ctx{j},b_j=v]$ \\
+$m_j(\ctx{j})$ & marginalized term $\nabla_\theta\sum_v\pj{j}(v)Q_j(\ctx{j},v)$ \\
+$\Delta_j(\ctx{j},v)$, $\Delta$ & perturbation $c_j-Q_j$; vector of all its entries \\
+$u_j$, $U$ & centered score term of $\Delta_j$ \eqref{eq:uj}; $U=\sum_j u_j$ \\
+$r$ & residual of the estimator with $Q$, $r:=\ghat{Q}-\gtrue$ \\
+$\VQ$, $B$, $C$ & $\Var(\ghat{Q})$; cross-term vector; quadratic-term matrix in \eqref{eq:ABC} \\
+$\Dstar$, $\cstar$ & $C^{\dagger}B$; optimal control variate $Q+\Dstar$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Methodology}\label{sec:method}
+We propose a new control variate method that can tackle C1 and C2 simultaneously. Our storyline can be summarized as follows:
+\begin{itemize}
+    \item Develop an unbiased control variate estimator to tackle C2 (\Cref{sec:family}).
+    \item However, the natural choice $c=Q$ does not guarantee to minimize the variance. Thus, we refine it such that it can minimize the variance (\Cref{sec:variance,sec:optimal}).
+    \item Finally, we show how to compute $\Delta$ in practice (\Cref{sec:local_delta,sec:plugin}).
+\end{itemize}
+
+\subsection{Unbiased Gradient Estimator for Black-box DFL}\label{sec:family}
+Following LAX~\cite{GCW+18}, we consider constructing a surrogate for $f$ with a neural network $c_\phi$:
+\begin{align}
+    \hat{g} = \big(f(b) - c_\phi(b)\big)\nabla_\theta\log p(b\mid\theta) + \nabla_\theta\E\big[c_\phi(b)\big].
+\end{align}
+LAX uses the reparameterization to estimate the second term $\nabla_\theta\E[c_\phi(b)]$, which requires a differentiable $c_\phi$ and a continuous relaxation for discrete $b$. However, we try to use the exact form as it is. Specifically, in the factorized case ($\ctx{j}=b_{-j}$), we can write
+\begin{align}
+    \hat{g} &= \big(f(b) - c_\phi(b)\big)\nabla_\theta\sum_j\log\pj{j}(b_j) + \nabla_\theta\sum_{b}p(b\mid\theta)\,c_\phi(b) \\
+    &= \big(f(b) - c_\phi(b)\big)\sum_j\score{j} + \nabla_\theta\sum_{b}\prod_j\pj{j}(b_j)\,c_\phi(b) \\
+    &= \big(f(b) - c_\phi(b)\big)\sum_j\score{j} + \sum_{b}\sum_j p(b\mid\theta)\,\score{j}\,c_\phi(b) \\
+    &= \sum_j\Big[\big(f(b) - c_\phi(b)\big)\score{j} + \E\big[c_\phi(b)\,\score{j}\big]\Big].
+\end{align}
+Then by total expectation, we have
+\begin{align}
+    \E_b\big[c_\phi(b)\,\score{j}\big] = \E_{\ctx{j}}\Big[\E_{b_j}\big[c_\phi(\ctx{j},b_j)\,\score{j}(b_j)\,\big|\,\ctx{j}\big]\Big]
+    = \E_{\ctx{j}}\Big[\sum_v\pj{j}(v)\,c_\phi(\ctx{j},v)\,\score{j}(v)\Big].
+\end{align}
+Given a sample $b$, we can compute the inner expectation exactly. The randomness is in all $b$ in the previous form, but here the randomness is only in $\ctx{j}$. Thus, we consider the following \textbf{estimator family} with control variate $c=(c_1,\dots,c_d)$:
+\begin{align}\label{eq:family}
+    \ghat{c} :=\sum_{j=1}^{d}\Big[\big(f(b) - c_j(\ctx{j},b_j)\big)\score{j} + \sum_v\pj{j}(v)\,c_j(\ctx{j},v)\,\score{j}(v)\Big]
+    =\sum_{j=1}^{d}\Big[\big(f(b) - c_j(\ctx{j},b_j)\big)\score{j} + \nabla_\theta\,\bar c_j\Big],
+\end{align}
+where $\bar c_j:=\sum_v\pj{j}(v)c_j(\ctx{j},v)$, and $\nabla_\theta$ only differentiates the probabilities ($c_j$ is fixed). The same derivation also holds for the autoregressive case $\ctx{j}=b_{<j}$.
+
+\paragraph{Why this family?}
+The exact gradient only needs $f$ swept one coordinate at a time:
+\begin{align}\label{eq:truegrad}
+    \gtrue=\sum_{j=1}^{d}\E_{\ctx{j}}\Big[\nabla_\theta\sum_v\pj{j}(v)\,Q_j(\ctx{j},v)\Big],
+\end{align}
+where $Q_j$ is the conditional mean defined in \eqref{eq:Q}. However, computing this sweep needs $d\cdot V$ oracle calls, which is too expensive. We replace this sweep with a cheap learned function $c_j$, and the score term $(f-c_j)\score{j}$ corrects its error in expectation.
+
+\begin{lemma}[Unbiasedness]\label{lem:unbiased}
+    For any $c = (c_1, \dots, c_d)$, $\E[\ghat{c}] = \nabla_\theta \gL(\theta)$. Moreover, the conditional mean of the $j$-th summand $\E\big[\ghat{c}_j\mid\ctx{j}\big]$ does not depend on $c_j$.
+\end{lemma}
+\begin{proof}
+    Condition on $\ctx{j}$, then $b_j\sim\pj{j}$, so $\E[c_j(\ctx{j},b_j)\score{j}\mid\ctx{j}]=\sum_v\pj{j}(v)c_j(\ctx{j},v)\score{j}(v)=\nabla_\theta\bar c_j$, which is exactly the added-back term in \eqref{eq:family}. Summing the remaining $\E[f\score{j}]$ over $j$ gives \eqref{eq:sf}.
+\end{proof}
+
+\Cref{lem:unbiased} shows that any $c$ gives an unbiased estimator. Thus, the remaining question is which $c$ minimizes the variance.
+
+\subsection{Minimize the Variance}\label{sec:variance}
+
+The next critical question to ask is what the control variate $c$ should predict such that the \textbf{variance of $\ghat{c}$ can be minimized}. A natural choice is
+\begin{align}\label{eq:Q}
+    c_j(\ctx{j},v)=Q_j(\ctx{j},v):=\E\big[f(b)\,\big|\,\ctx{j},\,b_j=v\big].
+\end{align}
+Note that for a deterministic oracle and the factorized context, $Q_j(b_{-j},b_j)=f(b)$\footnote{In the main paper, we assume a deterministic oracle, and the noisy oracle is discussed in \Cref{rem:noise}.}. Most of current works use this choice, either with exact evaluations of $f$~\cite{titsias2015,tokui2017,SSM23} or with a learned critic. Substituting $c=Q$ back makes the first term of $\hat g$ vanish, since $f-Q_j(b_{-j},b_j)=0$, and we have
+\begin{align}\label{eq:mk}
+    \ghat{Q}=\sum_{k=1}^{d}m_k(\ctx{k}),\qquad m_k(\ctx{k}):=\nabla_\theta\sum_v\pj{k}(v)\,Q_k(\ctx{k},v).
+\end{align}
+Here $m_k$ is still random since it depends on $\ctx{k}$, and we denote $\VQ:=\Var(\ghat{Q})$. However, this does not imply that $c = Q$ is variance-optimal.
+
+We therefore parameterize the general control variate as $c_j=Q_j+\Delta_j$, where $\Delta_j(\ctx{j},v)$ can be any function, and define
+\begin{align}\label{eq:uj}
+    u_j := \Delta_j(\ctx{j},b_j)\,\score{j} - \nabla_\theta\sum_v\pj{j}(v)\,\Delta_j(\ctx{j},v)
+    = \Delta_j(\ctx{j},b_j)\,\score{j} - \E\big[\Delta_j(\ctx{j},b_j)\,\score{j}\,\big|\,\ctx{j}\big],
+    \qquad U:=\sum_{j=1}^{d}u_j .
+\end{align}
+
+\begin{proposition}\label{prop:unbiased-pert}
+    $\ghat{Q+\Delta}=\ghat{Q}-U$ and $\E[u_j\mid\ctx{j}]=0$. Thus, $\E[U]=0$, and adding $\Delta$ does not affect the unbiasedness of $\hat g$.
+\end{proposition}
+\begin{proof}
+    Substituting $c_j=Q_j+\Delta_j$ into the $j$-th term of \eqref{eq:family}, we have
+    \begin{align}
+        \ghat{c}_j &=\big(f(b) - Q_j(\ctx{j},b_j) - \Delta_j(\ctx{j},b_j)\big)\score{j} + \nabla_\theta\sum_v\pj{j}(v)\big(Q_j(\ctx{j},v)+\Delta_j(\ctx{j},v)\big) \\
+        &=\underbrace{\big(f(b) - Q_j(\ctx{j},b_j)\big)\score{j} + m_j(\ctx{j})}_{=\ \ghat{Q}_j}
+        \;-\;\underbrace{\Big[\Delta_j(\ctx{j},b_j)\score{j} - \nabla_\theta\sum_v\pj{j}(v)\Delta_j(\ctx{j},v)\Big]}_{=\ u_j}.
+    \end{align}
+    Conditioning on $\ctx{j}$, $\E[\Delta_j(\ctx{j},b_j)\score{j}\mid\ctx{j}]=\sum_v\pj{j}(v)\Delta_j(\ctx{j},v)\score{j}(v)=\nabla_\theta\sum_v\pj{j}(v)\Delta_j(\ctx{j},v)$, so $\E[u_j\mid\ctx{j}]=0$. Immediately, we have $\E[u_j]=\E[\E[u_j\mid\ctx{j}]]=0$.
+\end{proof}
+
+\begin{proposition}\label{prop:quadratic}
+    Let $r:=\ghat{Q}-\gtrue$. For any perturbation $\Delta=(\Delta_1,\dots,\Delta_d)$,
+    \begin{align}\label{eq:ABC}
+        \Var(\ghat{Q+\Delta}) = \underbrace{\vphantom{\sum_{j}}\VQ}_{\text{variance at }c=Q}
+        \;-\;2\underbrace{\sum_{j=1}^{d}\E\big[r^{\top}u_j\big]}_{=:\,B^{\top}\Delta\ (\text{cross term})}
+        \;+\;\underbrace{\sum_{j=1}^{d}\sum_{j'=1}^{d}\E\big[u_j^{\top}u_{j'}\big]}_{=:\,\Delta^{\top}C\Delta\ (\text{quadratic term})}.
+    \end{align}
+    Since each $u_j$ is linear in $\Delta_j(\ctx{j},\cdot)$, the cross term is linear in $\Delta$, and the quadratic term $\Delta^{\top}C\Delta=\E\|U\|^2$ is positive semi-definite. For a deterministic oracle and the factorized context, $r=\sum_k\big(m_k(b_{-k})-\E m_k\big)$, and the cross term becomes $\sum_{j,k}\E[m_k(b_{-k})^{\top}u_j]$.
+\end{proposition}
+\begin{proof}
+    Since $\E\ghat{c}=\gtrue$ for every $c$ (\Cref{lem:unbiased}) and $\ghat{Q+\Delta}=\ghat{Q}-U$ (\Cref{prop:unbiased-pert}), the variance can be computed as
+    \begin{align}
+        \Var(\ghat{Q+\Delta}) &= \E\big\|\ghat{Q+\Delta}-\gtrue\big\|^2 = \E\big\|r - U\big\|^2
+        =\E\|r\|^2 - 2\,\E\big[r^{\top}U\big] + \E\|U\|^2 .
+    \end{align}
+    The first term is $\VQ$. For the second term, $\E[r^{\top}U]=\E[\ghat{Q}^{\top}U]-\gtrue^{\top}\E[U]$ and $\E[U]=0$. In the deterministic factorized case, $\ghat{Q}=\sum_k m_k$, which gives the stated form. The last term is $\sum_{j,j'}\E[u_j^{\top}u_{j'}]$.
+\end{proof}
+
+Note that the quadratic term is always non-negative. Thus, $\Delta$ can reduce the variance only through the cross term, i.e., only when $u_j$ is correlated with the residual $r$ of $Q$. The following example shows that this already happens with two coordinates.
+
+\begin{example}\label{ex:two-bernoulli}
+    Consider two independent Bernoulli variables $b_1, b_2 \sim \mathrm{Bernoulli}(p)$ with a shared parameter $p = \sigma(\theta)$. Let $f(b_1, b_2) = b_1b_2$. At $\theta = 0$, we have $p=1/2$ and $\nabla_\theta p = 1/4$, so
+    \begin{align}
+        \gtrue=\nabla_\theta\E_{p(\theta)}[f]=\nabla_\theta p^2=\tfrac14 .
+    \end{align}
+    For the conditional-mean control variates,
+    \begin{align}
+        Q_1 (b_2, v) = v\,b_2, \qquad Q_2 (b_1, v) = b_1 v,
+    \end{align}
+    and hence $Q_j(b_{-j},b_j)=f(b)$. Intuitively, $Q_1$ averages over all possible values of $b_1$, so the randomness from $b_1$ is removed; however, $b_2$ is still sampled and remains random. Similarly, $Q_2$ removes the randomness from $b_2$ but not from $b_1$. Thus, substituting $c=Q$ gives
+    \begin{align}
+        \ghat{Q} = \tfrac14 b_2 + \tfrac14 b_1 = \tfrac14(b_1+b_2),
+        \qquad
+        \Var(\ghat{Q}) = \tfrac{1}{32} > 0 .
+    \end{align}
+    Now consider $c_1 = Q_1 + \tfrac14$, $c_2 = Q_2 + \tfrac14$. Since $\score{j}=\nabla_\theta\log\pj{j}(b_j)=b_j-\tfrac12$, the additional terms exactly cancel the remaining randomness:
+    \begin{align}
+        \ghat{c} = \tfrac14(b_1+b_2) - \tfrac14\Big[\big(b_1-\tfrac12\big) + \big(b_2-\tfrac12\big)\Big] = \tfrac14 ,
+        \qquad
+        \Var(\ghat{c}) = 0 < \Var(\ghat{Q}).
+    \end{align}
+    Here, the correction on $b_1$ cancels the randomness left by $Q$ in $b_2$, and vice versa. This is possible only because both scores are along the same direction $\nabla_\theta p$.
+\end{example}
+
+\subsection{The Variance-Optimal Control Variate}\label{sec:optimal}
+
+\begin{lemma}[Diagonal cross terms vanish]\label{lem:diag}
+    In the deterministic factorized case, for every $j$ and every $\Delta_j$, $\E[m_j(b_{-j})^{\top}u_j]=0$.
+\end{lemma}
+\begin{proof}
+    Condition on $b_{-j}$: $m_j(b_{-j})$ is fixed while $\E[u_j\mid b_{-j}]=0$.
+\end{proof}
+\Cref{lem:diag} shows that $\Delta_j$ cannot reduce the variance of its own coordinate, i.e., $Q_j$ is only locally (coordinate-wise) optimal. This recovers the result of Tokui and Sato~\cite{tokui2017}. Thus, any improvement over $Q$ must come from the cross terms $\E[m_k^{\top}u_j]$ with $k\neq j$.
+
+\begin{lemma}[When cross terms vanish]\label{lem:cross}
+    In the deterministic factorized case, for $k\neq j$, $\E[m_k(b_{-k})^{\top}u_j]=\E[(m_k-\E[m_k\mid b_{-j}])^{\top}u_j]$, and it vanishes for all $\Delta_j$ if either
+    \begin{enumerate}[label=(\roman*)]
+        \item $f$ is additively separable, i.e., $f(b)=\sum_l f_l(b_l)$. Then $m_k=\nabla_\theta\sum_v\pj{k}(v)f_k(v)$ does not depend on $b_{-k}$, so it does not change with $b_j$; or
+        \item the heads share no parameters, i.e., $J_kJ_j^{\top}=0$. Then $m_k^{\top}u_j\equiv0$, since $m_k=J_k^{\top}a_k$ is in the row space of $J_k$ and $u_j=J_j^{\top}w_j$ is in that of $J_j$.
+    \end{enumerate}
+\end{lemma}
+\begin{proof}
+    The identity follows by conditioning on $b_{-j}$, since $\E[m_k\mid b_{-j}]$ is a function of $b_{-j}$ and $\E[u_j\mid b_{-j}]=0$. (i) If $f=\sum_l f_l$, then $Q_k(b_{-k},v)=f_k(v)+\sum_{l\neq k}f_l(b_l)$, and the part depending on $b_{-k}$ is removed by $\nabla_\theta\sum_v\pj{k}(v)=\nabla_\theta1=0$. Thus, $m_k$ is deterministic given $(x,\theta)$ and equals $\E[m_k\mid b_{-j}]$. (ii) By the chain rule, $m_k=J_k^{\top}a_k$ with $a_k=\nabla_{\zeta_k}\sum_v\pj{k}(v)Q_k(b_{-k},v)$. Similarly, $\score{j}(v)=J_j^{\top}(e_v-\pj{j})$ gives $u_j=J_j^{\top}w_j$ with $w_j=\Delta_j(b_{-j},b_j)(e_{b_j}-\pj{j})-\nabla_{\zeta_j}\sum_v\pj{j}(v)\Delta_j(b_{-j},v)$. Therefore, $m_k^{\top}u_j=a_k^{\top}J_kJ_j^{\top}w_j=0$.
+\end{proof}
+
+\begin{theorem}[Variance-optimal control variate]\label{thm:optimal}
+    Let $\Delta$ collect all entries $\Delta_j(\ctx{j},v)$, and write \eqref{eq:ABC} as $\Var(\ghat{Q+\Delta})=\VQ-2B^{\top}\Delta+\Delta^{\top}C\Delta$ with $C\succeq0$. Then the minimizers are
+    \begin{align}
+        \cstar = Q + \Dstar, \qquad \Dstar = C^\dagger B, \qquad \Var(\ghat{\cstar}) = \VQ - B^\top C^\dagger B .
+    \end{align}
+    In particular:
+    \begin{enumerate}[label=(\alph*)]
+        \item \textbf{(Separated regime.)} If $f$ is additively separable or the heads share no parameters, then $B=0$ and $\cstar=Q$. This is the regime covered by Tokui and Sato~\cite{tokui2017}.
+        \item \textbf{(Shared regime.)} If $f$ has interactions across coordinates and the heads share parameters, which is common in DFL since one network predicts all parameters of a coupled problem, $B\neq0$ in general. When $B\neq0$, the optimal control variate is $Q$ plus a nonzero correction, and its variance is strictly lower than $\VQ$ by $B^{\top}C^{\dagger}B>0$.
+    \end{enumerate}
+    All minimizers give the same estimator almost surely.
+\end{theorem}
+\begin{proof}
+    $q(\Delta):=\VQ-2B^{\top}\Delta+\Delta^{\top}C\Delta$ is a convex quadratic with $C\succeq0$. First, $B\in\mathrm{range}(C)$: since $q\ge0$, if $B$ had a component $B_1\neq0$ in $\ker C=\mathrm{range}(C)^{\perp}$, then $q(tB_1)=\VQ-2t\|B_1\|^2\to-\infty$. Second, $\nabla q=2(C\Delta-B)=0$ has solutions $C^{\dagger}B+\ker C$, and $q(C^{\dagger}B)=\VQ-B^{\top}C^{\dagger}B$ by $C^{\dagger}CC^{\dagger}=C^{\dagger}$. For (a), the $j=k$ part of the cross term is zero by \Cref{lem:diag} and the $j\neq k$ part is zero by \Cref{lem:cross}, so $B=0$. For (b), write $B=Cy$, then $B^{\top}C^{\dagger}B=y^{\top}Cy>0$ unless $Cy=B=0$. Finally, two minimizers differ by $\Delta_0\in\ker C$, i.e., $\E\|U_0\|^2=0$, so $U_0=0$ almost surely and the estimator does not change by \Cref{prop:unbiased-pert}.
+\end{proof}
+
+\begin{remark}[Noisy oracle]\label{rem:noise}
+    If $f=Q_j(b_{-j},b_j)+\varepsilon$ with $\E[\varepsilon\mid b]=0$, then $\ghat{Q}=\sum_k m_k+\varepsilon\sum_k\score{k}$, and the extra cross term $\E[\varepsilon(\sum_k\score{k})^{\top}U]$ vanishes by conditioning on $b$. Thus, all results above still hold with $\VQ=\Var(\ghat{Q})$.
+\end{remark}
+
+\begin{remark}[Autoregressive predictors]\label{rem:ar}
+    With the prefix context $\ctx{j}=b_{<j}$, \Cref{lem:unbiased,prop:unbiased-pert,prop:quadratic,thm:optimal} still hold with the same proofs. The only difference is that $Q_j$ becomes the prefix conditional mean, so $f-Q_j\neq0$. This makes $Q$ much weaker: $Q_j$ cannot use future coordinates (otherwise the estimator is biased), so it has to average over them. In contrast, $\Delta$ can still cancel the noise from future coordinates through $\score{j}^{\top}\score{k}$. For example, in an exact toy with six binary coordinates, one shared logit and $f=\prod_j b_j$, $\Var(\ghat{Q})/\Var(\rf)$ increases from $0.29$ (leave-one-out) to $0.72$ (prefix), while $\Var(\ghat{\cstar})=0$ in both cases. Thus, the gap between $Q$ and $\cstar$ is the largest in the autoregressive case, which is the LLM setting in \Cref{sec:mcp}.
+\end{remark}
+
+\subsection{Discussion of Our Estimator}\label{sec:discussion}
+\begin{itemize}
+    \item \textbf{When can we reduce the variance?} Since the diagonal terms $\E[m_j^{\top}u_j]$ vanish (\Cref{lem:diag}), we need the cross terms to be non-zero. By \Cref{lem:cross}, this requires both a non-separable $f$ and shared parameters, which is common when one predictor feeds a coupled downstream problem.
+    \item \textbf{Can our estimator recover current works?} Yes. If $B=0$, then $\cstar=Q$, and our estimator with exact evaluations of $f$ becomes IndeCateR/RAM~\cite{SSM23,tokui2017}. If $c_j$ does not depend on $v$, it is a state baseline. If $c$ is a constant, it is REINFORCE with a baseline.
+    \item \textbf{How to train with this estimator?} $\hat Q$ can be trained by regression on $f$. $\Delta$ can be trained by variance descent with $\hat Q$ fixed, computed in closed form (\Cref{sec:local_delta}), or computed from a reward model (\Cref{sec:plugin}). The parameterization $c=\hat Q+\Delta$ lets the noisy variance-descent signal only fit the residual instead of the whole control variate.
+\end{itemize}
+
+\subsection{A Closed-form $\Delta$ Without Fitting}\label{sec:local_delta}
+The exact minimizer $\Dstar=C^\dagger B$ is a linear system over the whole table $\{\Delta_j(b_{-j},v)\}$ and cannot be estimated from samples. We derive a closed form by dropping only the off-diagonal blocks of $C$, i.e.\ the cross terms $\E[u_j^\top u_{j'}]$ for $j\neq j'$. The reason is structural: after conditioning on $b_{-j}$, the diagonal block of coordinate $j$ and its slice of $B$ involve only the single row $\Delta_j(b_{-j},\cdot)$, so each row becomes a $V\times V$ problem computable from $f$ and score inner products. The off-diagonal blocks tie that row to rows of other coordinates at other points, which is the whole-table system. Dropping them first and restoring them by sweeps (Step 5) is the only order in which the problem is tractable. In this subsection, we consider the factorized context $\ctx{j}=b_{-j}$ and a deterministic oracle, so $Q=f$.
+
+\paragraph{Step 1: the residual.} Since $f-Q=0$,
+\begin{align}
+    r=\ghat{Q}-\gtrue=\sum_k\big(m_k(b_{-k})-\E\,m_k\big),\qquad m_k(b_{-k})=\sum_{v}\pj{k}(v)\,f(b_{-k},v)\,\score{k}(v).
+\end{align}
+
+\paragraph{Step 2: block-diagonal relaxation.} With $\E[u_j^\top u_{j'}]=0$ for $j\ne j'$, the variance separates over coordinates:
+\begin{align}
+    \Var(\ghat{c})\;\approx\;\VQ+\sum_j\Big(\E\|u_j\|^2-2\,\E\big[u_j^\top\textstyle\sum_k m_k(b_{-k})\big]\Big),
+\end{align}
+using $\E[u_j^\top\E m_k]=0$ because $\E u_j=0$.
+
+\paragraph{Step 3: condition on $b_{-j}$.} Given $b_{-j}$, $m_j(b_{-j})$ is constant while $m_k(b_{-k})$, $k\neq j$, depends on $b_j$. Write
+\begin{align}
+    R_j(b_{-j},v):=\sum_{k\neq j} m_k(b_{-k})\Big|_{b_j=v},\qquad \bar R_j:=\sum_v \pj{j}(v)R_j(b_{-j},v).
+\end{align}
+Because $\E[u_j\mid b_{-j}]=0$, the $m_j$ term and the mean $\bar R_j$ drop out:
+\begin{align}
+    \E\big[u_j^\top\textstyle\sum_k m_k\,\big|\,b_{-j}\big]=\sum_v \pj{j}(v)\,u_j(v)^\top\big(R_j(v)-\bar R_j\big),
+\end{align}
+where $u_j(v):=\Delta_j(b_{-j},v)\score{j}(v)-\sum_u \pj{j}(u)\Delta_j(b_{-j},u)\score{j}(u)$ is $u_j$ evaluated at $b_j=v$.
+
+\paragraph{Step 4: complete the square.} Combining Steps 2--3, the contribution of coordinate $j$ at a fixed $b_{-j}$ is, up to a constant,
+\begin{align}
+    \sum_v \pj{j}(v)\,\big\|u_j(v)-\big(R_j(v)-\bar R_j\big)\big\|^2 .
+    \label{eq:local_ls}
+\end{align}
+$u_j(v)$ is linear in the $V$-vector $\Delta_j(b_{-j},\cdot)$, so \eqref{eq:local_ls} is a $V\times V$ least-squares problem whose coefficients are inner products of scores, $\score{j}(u)^\top \score{j}(u')$ and $\score{j}(u)^\top \score{k}(v')$, and whose right-hand side needs $f$ at second-order neighbours $f(b_{-jk},v,v')$. Its solution $\Delta^{\mathrm{loc}}_j(b_{-j},\cdot)$ depends on $b_{-j}$ and $v$ only, never on the realised $b_j$, so \Cref{lem:unbiased} applies and $\hat g$ stays unbiased.
+
+\paragraph{Step 5: what the relaxation costs, and how to recover it.} Dropping the off-diagonal blocks changes the direction of the solution: $\Delta^{\mathrm{loc}}=\mathrm{diag}(C)^{-1}B$ while $\Dstar=C^{-1}B$. A scalar $\sigma$ along $\Delta^{\mathrm{loc}}$ therefore guarantees safety but not optimality:
+\begin{align}
+    \sigma^*=\frac{B^\top\Delta^{\mathrm{loc}}}{(\Delta^{\mathrm{loc}})^\top C\,\Delta^{\mathrm{loc}}},\qquad
+    \VQ-\frac{(B^\top\Delta^{\mathrm{loc}})^2}{(\Delta^{\mathrm{loc}})^\top C\,\Delta^{\mathrm{loc}}}\;\ge\;\VQ-B^\top C^{-1}B,
+\end{align}
+with equality iff $\Delta^{\mathrm{loc}}\parallel\Dstar$, in particular when the off-diagonal blocks vanish. The direction is recovered by block Gauss--Seidel on $C\Delta=B$: put the other corrections into the target of \eqref{eq:local_ls},
+\begin{align}
+    \Delta_j^{(t+1)}(b_{-j},\cdot)=\arg\min_{\Delta_j}\sum_v \pj{j}(v)\,\Big\|u_j(v)-\big(R_j(v)-\bar R_j\big)+\sum_{j'\neq j}u^{(t)}_{j'}(v)\Big\|^2,
+    \label{eq:gs}
+\end{align}
+starting from $\Delta^{(0)}=\Delta^{\mathrm{loc}}$. Each sweep is again a $V\times V$ solve per $(j,b_{-j})$, uses one more neighbour order of $f$, and converges to $\Dstar$ since $C\succeq0$. No table is ever estimated: every row is computed from $f$ and score inner products. In our LLM experiments, the block-diagonal solution alone overshoots ($\sigma^*\approx0.3$), and one Gauss--Seidel sweep is needed; Jacobi iteration diverges.
+
+\paragraph{Check on \Cref{ex:two-bernoulli}.} For $f=b_1b_2$, $p=\tfrac12$: $R_1(v)=m_2\big|_{b_1=v}=\tfrac v4$, so $R_1(v)-\bar R_1=\tfrac14(v-\tfrac12)$, and $u_1(v)=\Delta_1(v)(v-\tfrac12)-\tfrac14(\Delta_1(1)-\Delta_1(0))$. The residual in \eqref{eq:local_ls} is zero at $\Delta_1\equiv\tfrac14$, which is exactly the correction used in the example; by symmetry $\Delta_2\equiv\tfrac14$, and one sweep of \eqref{eq:gs} leaves it unchanged.
+
+\subsection{Computing $Q$ and $\Delta$ from One Reward Model}\label{sec:plugin}
+% TODO(C2): this subsection carries the proposed second contribution; verify the M_theta identity against the "identity check" cell of tutorial_ar_train_live.ipynb.
+In practice, neither $Q$ nor $\Dstar$ is known, and both need to be learned from oracle calls. We show that they can be obtained from a single reward model. Let $\mathcal T_\theta$ be the map from a reward table $f$ (one value for each $b$) to the optimal control variate $\cstar=Q+\Dstar$. Note that $\mathcal T_\theta$ is linear: $Q_j=\E[f\mid\ctx{j},b_j=v]$ is linear in $f$, $B$ is linear in $f$, and $C$ does not depend on $f$ (it only depends on the policy and the scores). Since $\cstar$ minimizes the quadratic in \eqref{eq:ABC}, for any table $c$ we have
+\begin{align}\label{eq:excess}
+    \Var(\ghat{c})=\Var(\ghat{\cstar})+(c-\cstar)^{\top}C\,(c-\cstar).
+\end{align}
+Thus, if we plug in a reward model $\hat f$, i.e., $c=\mathcal T_\theta\hat f$, the extra variance is $(\hat f-f)^{\top}M_\theta(\hat f-f)$ with $M_\theta=\mathcal T_\theta^{\top}C\,\mathcal T_\theta$. This has three implications.
+\begin{enumerate}[label=(\roman*)]
+    \item Only $\hat f$ needs to be learned from rewards. The expectations, $C$, and the linear solve do not need any reward, and can be computed exactly under the policy (by enumeration in our experiments, or by sampling from the policy without calling the oracle).
+    \item The best plug-in is the posterior mean of $f$, and its expected gap to $\cstar$ is $\operatorname{tr}(M_\theta\Sigma_{\mathrm{post}})$. This gap can only be reduced by more data, not by a better solver or architecture.
+    \item $M_\theta$ weights the error of $\hat f$ by its importance under the current policy. Thus, if $\hat f$ is exact on the visited sequences, we only pay for its error on the unvisited ones.
+\end{enumerate}
+Finally, $\hat Q$ and $\hat\Delta$ can still be neural networks. If we distill a network $c_\psi$ onto $\mathcal T_\theta\hat f$ under the $C$-metric (no reward is needed), the distillation error $\|c_\psi-\mathcal T_\theta\hat f\|_C^2$ is below $10^{-3}$ in our experiments.
+
+\section{Experiments}\label{sec:exp}
+Our experiments answer three questions. (i) How much variance does the correction $\Dstar$ remove on top of the value function $Q$, and can the score alignment predict it before training? (ii) Does the gain hold for an LLM predictor with real black boxes? (iii) Can a learned control variate reach it, and does it matter for training?
+
+\paragraph{Protocol.} In all settings, we can enumerate all outcomes of the predictor. Thus, we compute $Q$, $B$, $C$, $\Dstar$ and the variance of every estimator exactly, without Monte Carlo error. We compare REINFORCE with the optimal constant baseline ($\rf$), the value function control variate $Q$, which is optimal when the weights are not shared~\cite{tokui2017}, and our optimum $Q{+}\Dstar$. For the learned $\hat Q$ and $\hat Q{+}\hat\Delta$, we fit the models from sampled oracle calls and then compute their variance exactly. We report variances normalized by $\Var(\rf)$. Our main metric is the ratio $\Var(\ghat{Q+\Delta})/\Var(\ghat{Q})$, i.e., the fraction of the variance left by the value function that the correction cannot remove. All estimators are unbiased up to numerical precision ($\|\E\hat g-\gtrue\|^2/\|\gtrue\|^2\approx10^{-13}$).
+
+\subsection{Predict-then-Optimize with a Quadratic Program}\label{sec:toy}
+\paragraph{Setup.} We follow the portfolio optimization setting in DFL. Given features $x\in\R^{6}$, the predictor outputs predicted returns $b=\hat c\in\R^{d}$, and the black-box oracle solves
+\begin{align}
+    a^{\star}(\hat c)=\arg\max_{\mathbf 1^{\top}a=1}\ \hat c^{\top}a-\tfrac{\lambda}{2}a^{\top}\Sigma a
+\end{align}
+with a fixed low-rank plus diagonal risk matrix $\Sigma$. The loss is the normalized regret of $a^{\star}(\hat c)$ under the true returns $y(x)=\mathrm{sigmoid}(Hx)$. Since $\Sigma$ couples all coordinates, $f$ is not separable. One network predicts all $d=12$ returns, each on a binary grid ($V=2$), and we only change how much the coordinates share. The \emph{tied} network has a trainable position embedding for each coordinate, which is the standard DFL predictor. The \emph{fully shared} network uses fixed position features, so all trainable parameters are shared. Note that with separate heads, $B=0$ by \Cref{lem:cross} and $\cstar=Q$. We evaluate both the leave-one-out context of a factorized predictor and the prefix context of an autoregressive one, at initialization and over $3$ seeds.
+
+\paragraph{Closed form.} Since this QP has an affine closed-form solution, the regret is exactly quadratic in $\hat c$. Then we can write $\ghat{Q}-\E\ghat{Q}=\sum_k \epsilon_k\,w_k$, where $\epsilon_k:=\hat c_k-\E\hat c_k$ and $w_k$ is a weighted sum of the score directions $u_j$ of the \emph{other} coordinates ($u_j=J_j[0]-J_j[1]$ on a binary grid, and $u_j=\nabla_\theta\mu_j$ for a Gaussian mean). The reachable set of $\Delta_k$ is $\{\alpha\,\epsilon_k\,u_k:\alpha\in\R\}$. Thus, the problem decouples over coordinates, and with $\sigma_k^2:=\Var(\epsilon_k)$,
+\begin{align}\label{eq:cos}
+    \frac{\Var(\ghat{\cstar})}{\Var(\ghat{Q})}=1-\frac{\sum_k\sigma_k^2\|w_k\|^2\cos^2(w_k,u_k)}{\sum_k\sigma_k^2\|w_k\|^2}.
+\end{align}
+If all coordinates have the same weight and pairwise score cosine $\rho$, the removed fraction is $(d-1)\rho^2/(1+(d-2)\rho)\to\rho$. Thus, the gain of $\Delta$ is decided by the \emph{score alignment} across coordinates, which can be computed from the Jacobians of the predictor before any oracle call. We verify that \eqref{eq:cos} matches the enumeration up to three decimals in all configurations.
+
+
+\paragraph{Results.} \Cref{tab:toy} shows two observations. \textbf{First, the gain of $\Dstar$ is decided by the alignment.} In the tied network, the position embeddings are private to each coordinate, so $\rho$ is only $0.24$ and $\Dstar$ removes $9\%$ of the variance left by $Q$. In the fully shared network, $\rho=0.97$ and $\Dstar$ removes $95\%$. When we sweep the scale of the position features ($d=8$) over $0.1/0.3/1/3$, $\rho$ changes as $0.99/0.94/0.57/0.26$ and the ratio as $0.014/0.075/0.59/0.85$, and \eqref{eq:cos} matches all of them. The grid is not needed: with a Gaussian predictor of the returns ($d=8$, after $200$ oracle calls), the ratio is $0.867$ for the tied network and $0.025$ for the fully shared one.
+
+\textbf{Second, $\Dstar$ matters most when $Q$ only sees the prefix.} With the prefix context, $Q$ only removes $34$--$36\%$ of the variance of REINFORCE, since it has to average over the future coordinates. $\Dstar$ can still cancel this noise through the score alignment (\Cref{rem:ar}), and $Q{+}\Dstar$ removes $97\%$ of the variance of REINFORCE. This is the case of an LLM, which we study next.
+
+\begin{table}[t]
+\centering\small
+\caption{Quadratic program with $d=12$ binary coordinates. Exact variances normalized by $\Var(\rf)$, mean of $3$ seeds at initialization. $\rho$ is the mean score cosine across coordinates, and ratio $=\Var(\ghat{Q+\Dstar})/\Var(\ghat{Q})$ (lower is better).}
+\label{tab:toy}
+\begin{tabular}{lccccccc}
+\toprule
+& & \multicolumn{3}{c}{leave-one-out context} & \multicolumn{3}{c}{prefix context} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+predictor & $\rho$ & $Q$ & $Q{+}\Dstar$ & ratio & $Q$ & $Q{+}\Dstar$ & ratio \\
+\midrule
+tied & $0.24$ & $0.123$ & $0.112$ & $0.911$ & $0.642$ & $0.596$ & $0.928$ \\
+fully shared & $0.97$ & $0.150$ & $0.0071$ & $\mathbf{0.048}$ & $0.659$ & $0.033$ & $\mathbf{0.050}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{LLM Predictors with Real Black Boxes}\label{sec:mcp}
+\paragraph{Setup.} In all settings, the predictor is Llama-3.2-3B-Instruct~\cite{grattafiori2024llama3} with a rank-8 LoRA~\cite{hu2022lora} on the down-projection of the last layer. The model reads a task and outputs one digit per decision in a fixed template. Only the digits are sampled, so this is the autoregressive case with $\ctx{j}=b_{<j}$ (\Cref{rem:ar}). We connect this predictor to three black boxes.
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{MCP configuration.} Given a task description and six capability slots (documentation, execution, verification, style, data, and delivery), each digit selects one of three candidate MCP servers~\cite{mcp2024}. The reward is all-or-nothing: $f=1$ if all slots match the gold configuration. We use $8$ tasks with $3^6=729$ configurations each.
+    \item \textbf{Live agent.} We implement $12$ MCP servers (e.g., filesystem, git, sqlite, python, and pytest) in four slots, and a client that attaches at most two of them. A GPT-4.1-mini agent solves the task with the selected servers, and a programmatic oracle returns $f$, e.g., whether the agent counted the shipped orders in a database and wrote the number to a file. We run all $67$ valid configurations of $10$ tasks twice ($1340$ episodes, $1.3\%$ disagreement between repeats) and cache the rewards.
+    \item \textbf{DFL on a protein fitness landscape.} Each context is a screening round of six GB1 variants~\cite{wu2016gb1,dallago2021flip} with assay costs $(2,2,3,3,4,4)$ and budget $7$. The digits are predicted activity tiers in $\{1,2,3\}$. The oracle solves a 0/1 knapsack problem that maximizes the sum of predicted tiers, and $f$ is the regret $1-\mathrm{value}(a)/\mathrm{value}(a^{\star})$ of the selected subset $a$ under the measured fitness. We use $8$ rounds.
+\end{itemize}
+For the learned estimators, $\hat Q(n,v)$ and $\hat\Delta(n,v)$ are MLPs on the hidden state at the decision position $n$. We fit $\hat Q$ by regression on $M=2000$ sampled sequences per task, and fit $\hat\Delta$ by variance descent with $\hat Q$ fixed. More details are in \Cref{app:exp}.
+
+\begin{table}[t]
+\centering\small
+\caption{LLM predictor. Exact variances normalized by $\Var(\rf)$ and pooled over tasks. \textbf{Top:} three black boxes. Ratio $=\Var(\ghat{Q+\Dstar})/\Var(\ghat{Q})$, and learned ratio $=\Var(\ghat{\hat Q+\hat\Delta})/\Var(\ghat{\hat Q})$ over $3$ seeds. ``align'' is the fraction of $\|\score{n}(v)\|^2$ in $\mathrm{span}_u\{\score{m}(u)\}$, averaged over pairs of decision nodes at different positions ($^{\dagger}$: over all pairs). \textbf{Bottom:} MCP configuration with the LoRA adapter at different places. The alignment needs no oracle call.}
+\label{tab:mcp}
+\begin{tabular}{lccccc}
+\toprule
+black box & align & $Q$ & $Q{+}\Dstar$ & ratio & learned ratio \\
+\midrule
+MCP configuration & $0.81$ & $0.731$ & $0.275$ & $0.38$ & $0.42$--$0.52$ \\
+live agent & $0.75^{\dagger}$ & $0.490$ & $0.357$ & $0.73$ & $0.78$ \\
+DFL on GB1 & $0.88$ & $0.683$ & $0.177$ & $\mathbf{0.26}$ & $0.41$--$0.43$ \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.8em}
+\begin{tabular}{lcccc}
+\toprule
+LoRA placement & down\_proj, layer 27 & all modules, layer 27 & q/v, layer 27 & q/v, all layers \\
+\midrule
+align & $0.81$ & $0.51$ & $0.32$ & $0.05$ \\
+ratio & $0.38$ & $0.62$ & $0.76$ & $0.91$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Results.} \Cref{tab:mcp} shows three observations. \textbf{First, the value function is far from optimal for an LLM predictor.} In all three black boxes, $\Dstar$ removes $27$--$74\%$ of the variance left by exact $Q$, and the learned $\hat Q{+}\hat\Delta$ removes $22$--$59\%$ of the variance left by the learned $\hat Q$. The largest gain is in the DFL pipeline. Here the interaction between coordinates comes from the solver: a tier matters only when it changes which subset is selected. Note that $\Delta$ has to depend on the value $v$. The best $v$-independent shift on top of $Q$, which acts as a baseline, only reaches ratio $0.57$ in MCP configuration.
+
+\textbf{Second, $\Dstar$ helps most when $Q$ helps least.} The all-or-nothing reward has no main effect for a prefix $Q$ to capture. If we add a digit $0$ for ``no server'' to each slot ($4^6=4096$ configurations), exact $Q$ removes only $0.4\%$ of the variance of REINFORCE, while $Q{+}\Dstar$ removes $52\%$ (learned ratio $0.47$). In contrast, the live reward is leaky: a single-server task succeeds with any second server, and some servers can substitute each other. Thus, $Q$ already removes $51\%$ of the variance of REINFORCE, and less is left for $\Dstar$. On the tasks that need two servers, the ratio is still $0.48$--$0.65$.
+
+\textbf{Third, the alignment tells the gain before training.} When we move the LoRA adapter from the last down-projection to the attention q/v projections of all layers (\Cref{tab:mcp}, bottom), the alignment drops from $0.81$ to $0.05$, and the ratio increases from $0.38$ to $0.91$. The reason is that an attention score sums over all attended prefix positions, so different decisions get almost orthogonal scores. In this case, $\hat\Delta$ is not worth fitting: with q/v LoRA on layers $24$--$27$, the learned ratio is $0.97$--$1.07$.
+
+\subsection{End-to-end Training}\label{sec:train}
+\paragraph{Setup.} We train the LoRA policy with Adam on the cached rewards of the live agent. We use a strict reward (the task succeeds and every attached server is called) on the four tasks that the policy can solve. We use one episode per step, $300$ steps, and $4$ seeds. This is the low signal-to-noise ratio (SNR) regime, where each update can only afford a few expensive oracle calls. After each step, we recompute the exact $P(\text{success})$. Exact $Q$ and $Q{+}\Dstar$ use the exact reward table, so they are ceilings. The learned $\hat Q$ and $\hat Q{+}\hat\Delta$ use the plug-in of \Cref{sec:plugin} with a posterior-mean reward table.
+
+\begin{figure}[t]
+\centering
+\IfFileExists{mcp_dfl_prototype/_train_live_lo_curves.pdf}{\includegraphics[width=\textwidth]{mcp_dfl_prototype/_train_live_lo_curves.pdf}}{\fbox{\parbox{0.9\textwidth}{\centering training curves, one episode per step\\(\texttt{mcp\_dfl\_prototype/\_train\_live\_lo\_curves.pdf})}}}
+\caption{Training with cached live-agent rewards and one episode per step (strict reward, four tasks). Exact $P(\text{success})$ vs.\ agent episodes; thin lines are the $4$ seeds and thick lines are their mean. Orange uses the value function, blue uses our optimal control variate, and the dashed line marks $0.8$. No curve changes after $150$ episodes.}
+\label{fig:train}
+\end{figure}
+
+\paragraph{Results.} \Cref{fig:train} shows three observations. \textbf{First, variance reduction decides whether the training converges.} REINFORCE collapses on $3$ of $4$ seeds and ends at $P(\text{success})=0.16$, while exact $Q$, exact $Q{+}\Dstar$ and the learned $\hat Q$ never collapse. \textbf{Second, the optimal control variate is the fastest and the most reliable.} Exact $Q{+}\Dstar$ reaches $0.8$ on all $4$ seeds, in $27$ episodes on average, and ends at $0.88$. Exact $Q$ reaches $0.8$ on $3$ seeds ($32$ episodes) and ends at $0.81$. \textbf{Third, the learned $\hat Q$ matches exact $Q$, but the learned $\hat\Delta$ does not yet match $\Dstar$.} $\hat Q$ ends at $0.81$ and reaches $0.8$ in $38$ episodes. $\hat Q{+}\hat\Delta$ ends at $0.59$ with one collapsed seed. With one reward per step, the reward model is wrong on the unvisited sequences, and $M_\theta$ puts weight on them (\Cref{sec:plugin}). Note that with eight episodes per step, the SNR after $Q$ is already above one. Then exact $Q{+}\Dstar$ ($126\pm11$ episodes to reach $0.8$) is not faster than exact $Q$ ($118\pm15$), although both are faster than REINFORCE ($210\pm70$) (\Cref{app:train8}).
+
+\section{Limitations}\label{sec:limitations}
+\begin{itemize}
+    \item \textbf{Separate heads.} Many DFL predictors use a separate head for each parameter. In this case, $B=0$ and $\cstar=Q$, so our method reduces to existing ones. The alignment $\rho$ in \eqref{eq:cos} can be used as a check before training: if $\rho$ is below about $0.3$, it is not worth fitting $\Delta$. Moreover, more sharing is not free. In the quadratic program, the fully shared categorical predictor has regret $0.59$ after $200$ oracle calls, compared to $0.34$ of the tied one, although this gap is much smaller for a Gaussian predictor ($0.33$ vs.\ $0.27$).
+    \item \textbf{Dependence on the reward model.} The learned $\hat\Delta$ is only helpful with an accurate $\hat f$. A separable $\hat f$ gives $\hat\Delta=0$, an unstructured error can increase the variance, and with one episode per step the learned $\hat\Delta$ hurts training (\Cref{sec:train}). Moreover, $\Dstar$ is high-dimensional. In the live MCP setting, $C$ needs $53$--$109$ eigendirections to cover $90\%$ of its trace, and correcting only the top $16$ directions recovers about half of the gain. Thus, $\Dstar$ cannot be estimated from a few rewards, and it does not transfer across tasks (the held-out ratio is above $1$ even with exact $Q$).
+    \item \textbf{Variance is not always the bottleneck.} When the SNR after $Q$ is already above one, further variance reduction does not reduce the number of episodes.
+    \item \textbf{Computational cost.} Training $\Delta$ by variance descent needs double backpropagation, and the closed form in \Cref{sec:local_delta} needs $f$ at second-order neighbours, i.e., extra oracle calls. The plug-in in \Cref{sec:plugin} avoids both, but it needs a reward model.
+\end{itemize}
+
+\providecommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{DSSZDM23}
+
+\bibitem[AK17]{amos2017optnet}
+Brandon Amos and J.~Zico Kolter.
+\newblock {OptNet}: differentiable optimization as a layer in neural networks.
+\newblock In {\em International Conference on Machine Learning (ICML)}, 2017.
+
+\bibitem[Ant24]{mcp2024}
+Anthropic.
+\newblock Introducing the Model Context Protocol.
+\newblock \url{https://www.anthropic.com/news/model-context-protocol}, 2024.
+
+\bibitem[BBT{\etalchar{+}}20]{berthet2020}
+Quentin Berthet, Mathieu Blondel, Olivier Teboul, Marco Cuturi, Jean-Philippe Vert, and Francis Bach.
+\newblock Learning with differentiable perturbed optimizers.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2020.
+
+\bibitem[DAK17]{donti2017}
+Priya~L. Donti, Brandon Amos, and J.~Zico Kolter.
+\newblock Task-based end-to-end model learning in stochastic optimization.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2017.
+
+\bibitem[DLL11]{dudik2011}
+Miroslav Dud{\'\i}k, John Langford, and Lihong Li.
+\newblock Doubly robust policy evaluation and learning.
+\newblock In {\em International Conference on Machine Learning (ICML)}, 2011.
+
+\bibitem[DMJ{\etalchar{+}}21]{dallago2021flip}
+Christian Dallago, Jody Mou, Kadina~E. Johnston, Bruce~J. Wittmann, Nicholas Bhattacharya, Samuel Goldman, Ali Madani, and Kevin~K. Yang.
+\newblock {FLIP}: benchmark tasks in fitness landscape inference for proteins.
+\newblock In {\em NeurIPS Datasets and Benchmarks Track}, 2021.
+
+\bibitem[DSSZDM23]{SSM23}
+Lennert De~Smet, Emanuele Sansone, and Pedro Zuidberg Dos~Martires.
+\newblock Differentiable sampling of categorical distributions using the {CatLog}-derivative trick.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+
+\bibitem[EG22]{elmachtoub2022}
+Adam~N. Elmachtoub and Paul Grigas.
+\newblock Smart ``predict, then optimize''.
+\newblock {\em Management Science}, 68(1):9--26, 2022.
+
+\bibitem[G{\etalchar{+}}24]{grattafiori2024llama3}
+Aaron Grattafiori et~al.
+\newblock The {Llama 3} herd of models.
+\newblock {\em arXiv preprint arXiv:2407.21783}, 2024.
+
+\bibitem[GBB04]{greensmith2004}
+Evan Greensmith, Peter~L. Bartlett, and Jonathan Baxter.
+\newblock Variance reduction techniques for gradient estimates in reinforcement learning.
+\newblock {\em Journal of Machine Learning Research}, 5:1471--1530, 2004.
+
+\bibitem[GCW{\etalchar{+}}18]{GCW+18}
+Will Grathwohl, Dami Choi, Yuhuai Wu, Geoffrey Roeder, and David Duvenaud.
+\newblock Backpropagation through the void: optimizing control variates for black-box gradient estimation.
+\newblock In {\em International Conference on Learning Representations (ICLR)}, 2018.
+
+\bibitem[HSW{\etalchar{+}}22]{hu2022lora}
+Edward~J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen.
+\newblock {LoRA}: low-rank adaptation of large language models.
+\newblock In {\em International Conference on Learning Representations (ICLR)}, 2022.
+
+\bibitem[KvHW19]{kool2019}
+Wouter Kool, Herke van Hoof, and Max Welling.
+\newblock Buy 4 {REINFORCE} samples, get a baseline for free!
+\newblock In {\em ICLR Workshop on Deep Reinforcement Learning Meets Structured Prediction}, 2019.
+
+\bibitem[LFM{\etalchar{+}}18]{liu2018}
+Hao Liu, Yihao Feng, Yi Mao, Dengyong Zhou, Jian Peng, and Qiang Liu.
+\newblock Action-dependent control variates for policy optimization via {Stein} identity.
+\newblock In {\em International Conference on Learning Representations (ICLR)}, 2018.
+
+\bibitem[LRT{\etalchar{+}}19]{liu2019}
+Runjing Liu, Jeffrey Regier, Nilesh Tripuraneni, Michael~I. Jordan, and Jon McAuliffe.
+\newblock {Rao-Blackwellized} stochastic gradients for discrete distributions.
+\newblock In {\em International Conference on Machine Learning (ICML)}, 2019.
+
+\bibitem[LXL{\etalchar{+}}26]{otb2026}
+Yingru Li, Jiawei Xu, Ziniu Li, Jiacai Liu, Wei Liu, Yuxuan Tong, Longtao Zheng, Zhenghai Xue, Yaxiang Zhang, Tianle Cai, Ge Zhang, Qian Liu, and Baoxiang Wang.
+\newblock The optimal token baseline: variance reduction for long-horizon {LLM-RL}.
+\newblock In {\em International Conference on Machine Learning (ICML)}, 2026.
+\newblock arXiv:2602.07078.
+
+\bibitem[MG14]{mnih2014nvil}
+Andriy Mnih and Karol Gregor.
+\newblock Neural variational inference and learning in belief networks.
+\newblock In {\em International Conference on Machine Learning (ICML)}, 2014.
+
+\bibitem[MKB{\etalchar{+}}24]{mandi2024}
+Jayanta Mandi, James Kotary, Senne Berden, Maxime Mulamba, Victor Bucarey, Tias Guns, and Ferdinando Fioretto.
+\newblock Decision-focused learning: foundations, state of the art, benchmark and future opportunities.
+\newblock {\em Journal of Artificial Intelligence Research}, 80:1623--1701, 2024.
+
+\bibitem[SBM{\etalchar{+}}23]{silvestri2023}
+Mattia Silvestri, Senne Berden, Jayanta Mandi, Ali {\.I}rfan Mahmuto{\u{g}}ullar{\i}, Maxime Mulamba, et~al.
+\newblock Score function gradient estimation to widen the applicability of decision-focused learning.
+\newblock {\em arXiv preprint arXiv:2307.05213}, 2023.
+
+\bibitem[SP25]{sutskever2025dwarkesh}
+Ilya Sutskever and Dwarkesh Patel.
+\newblock Ilya {Sutskever} -- we're moving from the age of scaling to the age of research.
+\newblock Dwarkesh Podcast, interview, November 2025.
+
+\bibitem[SWW{\etalchar{+}}22]{shah2022lodl}
+Sanket Shah, Kai Wang, Bryan Wilder, Andrew Perrault, and Milind Tambe.
+\newblock Decision-focused learning without decision-making: learning locally optimized decision losses.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2022.
+
+\bibitem[SWZ{\etalchar{+}}24]{shao2024}
+Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, et~al.
+\newblock {DeepSeekMath}: pushing the limits of mathematical reasoning in open language models.
+\newblock {\em arXiv preprint arXiv:2402.03300}, 2024.
+
+\bibitem[SZH{\etalchar{+}}22]{shi2022}
+Jiaxin Shi, Yuhao Zhou, Jessica Hwang, Michalis~K. Titsias, and Lester Mackey.
+\newblock Gradient estimation with discrete {Stein} operators.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2022.
+
+\bibitem[TBG{\etalchar{+}}18]{tucker2018}
+George Tucker, Surya Bhupatiraju, Shimon Gu, Richard~E. Turner, Zoubin Ghahramani, and Sergey Levine.
+\newblock The mirage of action-dependent baselines in reinforcement learning.
+\newblock In {\em International Conference on Machine Learning (ICML)}, 2018.
+
+\bibitem[TLG15]{titsias2015}
+Michalis~K. Titsias and Miguel L{\'a}zaro-Gredilla.
+\newblock Local expectation gradients for black box variational inference.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2015.
+
+\bibitem[TMM{\etalchar{+}}17]{tmm+17}
+George Tucker, Andriy Mnih, Chris~J. Maddison, Dieterich Lawson, and Jascha Sohl-Dickstein.
+\newblock {REBAR}: low-variance, unbiased gradient estimates for discrete latent variable models.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2017.
+
+\bibitem[TS17]{tokui2017}
+Seiya Tokui and Issei Sato.
+\newblock Evaluating the variance of likelihood-ratio gradient estimators.
+\newblock In {\em International Conference on Machine Learning (ICML)}, 2017.
+
+\bibitem[TS22]{titsias2022}
+Michalis~K. Titsias and Jiaxin Shi.
+\newblock Double control variates for gradient estimation in discrete latent variable models.
+\newblock In {\em International Conference on Artificial Intelligence and Statistics (AISTATS)}, 2022.
+
+\bibitem[VPPM{\etalchar{+}}20]{vlastelica2020}
+Marin Vlastelica~Pogan{\v{c}}i{\'c}, Anselm Paulus, Vit Musil, Georg Martius, and Michal Rolinek.
+\newblock Differentiation of blackbox combinatorial solvers.
+\newblock In {\em International Conference on Learning Representations (ICLR)}, 2020.
+
+\bibitem[WDO{\etalchar{+}}16]{wu2016gb1}
+Nicholas~C. Wu, Lei Dai, C.~Anders Olson, James~O. Lloyd-Smith, and Ren Sun.
+\newblock Adaptation in protein fitness landscapes facilitated by indirect paths.
+\newblock {\em eLife}, 5:e16965, 2016.
+
+\bibitem[WDT19]{wilder2019}
+Bryan Wilder, Bistra Dilkina, and Milind Tambe.
+\newblock Melding the data-decisions pipeline: decision-focused learning for combinatorial optimization.
+\newblock In {\em AAAI Conference on Artificial Intelligence}, 2019.
+
+\bibitem[Wil92]{williams1992}
+Ronald~J. Williams.
+\newblock Simple statistical gradient-following algorithms for connectionist reinforcement learning.
+\newblock {\em Machine Learning}, 8:229--256, 1992.
+
+\bibitem[WRD{\etalchar{+}}18]{wu2018}
+Cathy Wu, Aravind Rajeswaran, Yan Duan, Vikash Kumar, Alexandre~M. Bayen, Sham Kakade, Igor Mordatch, and Pieter Abbeel.
+\newblock Variance reduction for policy gradient with action-dependent factorized baselines.
+\newblock In {\em International Conference on Learning Representations (ICLR)}, 2018.
+
+\bibitem[WT01]{weaver2001}
+Lex Weaver and Nigel Tao.
+\newblock The optimal reward baseline for gradient-based reinforcement learning.
+\newblock In {\em Proceedings of the Conference on Uncertainty in Artificial Intelligence (UAI)}, 2001.
+
+\bibitem[ZAF{\etalchar{+}}23]{zharmagambetov2023lancer}
+Arman Zharmagambetov, Brandon Amos, Aaron Ferber, Taoan Huang, Bistra Dilkina, and Yuandong Tian.
+\newblock Landscape surrogate: learning decision losses for mathematical optimization under partial information.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+
+\end{thebibliography}
+
+\appendix
+\section{REINFORCE and Baselines}\label{sec:reinforce}
+Here we briefly review REINFORCE. For any $f$ that does not depend on $\theta$,
+\begin{align}
+    \nabla_\theta\E_{p(b\mid\theta)}[f(b)]=\sum_b f(b)\,\nabla_\theta p(b\mid\theta)=\E\big[f(b)\,\nabla_\theta\log p(b\mid\theta)\big],
+\end{align}
+and under \eqref{eq:policy}, $\nabla_\theta\log p(b\mid\theta)=\sum_j\score{j}$. Subtracting a baseline $\beta(\ctx{j})$ from $f$ in the $j$-th term does not change the expectation since $\E[\score{j}\mid\ctx{j}]=0$, and the optimal constant baseline is the score-weighted mean of $f$~\cite{weaver2001,greensmith2004}. In our notation, a baseline is a control variate $c_j(\ctx{j},v)=\beta(\ctx{j})$ that does not depend on $v$, and its added-back term is zero. Our family \eqref{eq:family} generalizes it by allowing $c_j$ to depend on $v$.
+
+\section{Additional Experimental Details and Results}\label{app:exp}
+
+\subsection{Quadratic Program}
+\Cref{tab:toy-full} gives all the configurations we ran. With separate heads, $\rho\approx0$ and the ratio is $0.974$. With the leave-one-out context, $Q$ already removes $85$--$99\%$ of the variance of REINFORCE, so $\Dstar$ only works on a small remainder. With the prefix context, both the alignment and a prefix-dependent $\Delta$ are needed: using only the alignment (fully shared network, $\Delta$ does not depend on the prefix) gives ratio $0.78$, using only a prefix-dependent $\Delta$ (tied network) gives $0.93$, and using both gives $0.05$. The reason is that the variance left by a prefix $Q$ comes from future coordinates, which can only be reached through $\score{j}^{\top}\score{k}$ (\Cref{rem:ar}). The Gaussian predictor with $d=12$ gives ratio $0.832$ (tied) and $0.022$ (fully shared).
+
+\begin{table}[h]
+\centering\small
+\caption{Quadratic program, all configurations. Exact variances normalized by $\Var(\rf)$. Ratio $=\Var(\ghat{Q+\Dstar})/\Var(\ghat{Q})$; $\rho$ is the mean score cosine across coordinates. ``Tied'' has trainable position embeddings; ``fully shared'' uses fixed position embeddings (width $8$, scale $0.1$).}
+\label{tab:toy-full}
+\begin{tabular}{lcccc}
+\toprule
+predictor & $\rho$ & $Q$ & $Q{+}\Dstar$ & ratio \\
+\midrule
+\multicolumn{5}{l}{\emph{Categorical, $V{=}5$, $d{=}8$, after $200$ oracle calls; leave-one-out context}} \\
+\quad separate heads & $0.02$ & $0.0191$ & $0.0186$ & $0.974$ \\
+\quad tied & $0.44$ & $0.0079$ & $0.0069$ & $0.883$ \\
+\multicolumn{5}{l}{\emph{Categorical, $V{=}2$, $d{=}12$, at initialization, mean of $3$ seeds; leave-one-out context}} \\
+\quad tied & $0.24$ & $0.123$ & $0.112$ & $0.911$ \\
+\quad fully shared & $0.97$ & $0.150$ & $0.0071$ & $0.048$ \\
+\multicolumn{5}{l}{\emph{same, prefix context with a prefix-dependent $\Delta$}} \\
+\quad tied & $0.24$ & $0.642$ & $0.596$ & $0.928$ \\
+\quad fully shared & $0.97$ & $0.659$ & $0.033$ & $0.050$ \\
+\multicolumn{5}{l}{\emph{Gaussian mean, $d{=}8$, after $200$ oracle calls; leave-one-out context}} \\
+\quad tied & $0.38$ & $0.0154$ & $0.0133$ & $0.867$ \\
+\quad fully shared & $0.98$ & $0.0202$ & $0.0005$ & $0.025$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Effect of the reward model.} We replace the true $f$ with a reward model $\hat f$ in $\cstar=\mathcal T_\theta f$ (\Cref{sec:plugin}), using the tied predictor with $V=5$. If $\hat f$ is additively separable (best additive fit, $R^2=0.96$), then $\hat\Delta=0$ by \Cref{lem:cross}(i). If $\hat f$ has i.i.d.\ noise with standard deviation $\ge0.05$, or is a lookup table, $\hat\Delta$ slightly increases the variance (ratio $1.01$--$1.02$). A well-specified quadratic $\hat f$ needs about $300$ on-policy samples to keep at least $94\%$ of the reduction of $\Dstar$. If we shrink the reward model to its mean, i.e., $\hat f_\lambda=(1-\lambda)f+\lambda\mu$, we get $\hat\Delta=(1-\lambda)\Dstar$, and the kept fraction of the reduction is $(1-\lambda)^2+2\lambda(1-\lambda)\rho'$, where $\rho'$ only depends on the policy and $f$ ($0.58$ here). The same formula with $\rho'=1.13$ fits the MCP setting in \Cref{sec:mcp}.
+
+\subsection{LLM Settings}
+\paragraph{MCP configuration.} We enumerate all sequences of each task through a prefix tree. The per-slot accuracy of the initial policy is $0.2$--$0.9$, and $P(\text{all correct})$ is $0.4$--$14\%$ per task. The learned $\hat\Delta$ is scaled by a scalar $s^\star$ chosen on validation data. \Cref{tab:mcp-full} adds two more control variates, i.e., the state baseline $V(\ctx{j})=\E[f\mid\ctx{j}]$ and $Q{+}\mathrm{shift}^{\star}$, the best $v$-independent shift on top of $Q$. It also adds a LoRA on lm\_head over three seeds, and the variant with a null digit for each slot (\texttt{slots0}).
+
+\paragraph{Live agent.} The $12$ servers are filesystem, grep, git, sqlite, fetch, notes, python, pytest, lint, write\_file, mail, and ticket. Example tasks are reading a port from a config file, or counting shipped orders in a database and writing the number to a file. The $1340$ cached episodes use $4.4$M tokens.
+
+\paragraph{GB1.} Each round has $22$ feasible subsets. We select $8$ rounds where an additive model on $b$ only explains $22$--$43\%$ of the variance of $f$, and $P(\text{zero regret})$ ranges from $0.013$ to $0.83$. The learned $\hat Q$ has $R^2$ of $0.89$--$0.93$. \Cref{tab:gb1} also gives the zero-regret indicator as the reward. The graded regret, which is the standard metric in DFL, gives a larger gain than the indicator ($0.26$ vs.\ $0.34$), since it is graded but still not additive.
+
+\begin{table}[h]
+\centering\small
+\caption{LLM configuring MCP servers, all configurations. Exact variances normalized by $\Var(\rf)$ and pooled over tasks. ``align'' is as in \Cref{tab:mcp} ($^{\dagger}$: over all node pairs). ``Learned ratio'' is $\Var(\ghat{\hat Q+\hat\Delta})/\Var(\ghat{\hat Q})$ with $M=2000$ samples per task and three seeds.}
+\label{tab:mcp-full}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccc}
+\toprule
+LoRA placement / task & align & state & $Q$ & $Q{+}\mathrm{shift}^{\star}$ & $Q{+}\Dstar$ & ratio & learned ratio \\
+\midrule
+down\_proj, layer 27 & $0.81$ & $1.165$ & $0.731$ & $0.420$ & $0.275$ & $0.38$ & $0.42$--$0.52$ \\
+lm\_head (three seeds) & $0.78$--$0.85^{\dagger}$ & $1.13$ & $0.75$--$0.77$ & $0.49$--$0.59$ & $0.36$--$0.45$ & $0.47$--$0.59$ & $0.61$--$0.64$ \\
+all modules of layer 27 & $0.51$ & $1.052$ & $0.735$ & $0.557$ & $0.459$ & $0.62$ & -- \\
+q/v attention, layer 27 & $0.32$ & $1.014$ & $0.752$ & $0.641$ & $0.573$ & $0.76$ & -- \\
+q/v attention, all layers & $0.05$ & $0.895$ & $0.614$ & $0.567$ & $0.557$ & $0.91$ & -- \\
+\midrule
+\texttt{slots0}, down\_proj 27 & $0.82$ & -- & $0.996$ & $0.755$ & $0.477$ & $0.48$ & $0.47$ \\
+live agent, 12 MCP servers & $0.75^{\dagger}$ & $0.799$ & $0.490$ & $0.446$ & $0.357$ & $0.73$ & $0.78$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering\small
+\caption{DFL pipeline on GB1, exact variances normalized by $\Var(\rf)$ and pooled over $8$ rounds. Learned ratios use $M=2000$ rounds and three seeds.}
+\label{tab:gb1}
+\begin{tabular}{lcccccc}
+\toprule
+reward & align & $Q$ & $Q{+}\mathrm{shift}^{\star}$ & $Q{+}\Dstar$ & ratio & learned ratio \\
+\midrule
+zero-regret indicator & $0.88$ & $0.688$ & $0.392$ & $0.234$ & $0.34$ & $0.48$--$0.49$ \\
+graded regret & $0.88$ & $0.683$ & $0.350$ & $0.177$ & $0.26$ & $0.41$--$0.43$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Training with Eight Episodes per Step}\label{app:train8}
+We use the same setup as \Cref{sec:train} with eight episodes per step and $8$ seeds. The learned estimators use the best plug-in variant, and we also train an MLP critic by regression only. To reach $P(\text{success})=0.8$, REINFORCE needs $210\pm70$ episodes, exact $Q$ needs $118\pm15$, exact $Q{+}\Dstar$ needs $126\pm11$, the best learned plug-in needs $137$--$148$, and the MLP critic needs $162$. During training, $\Var/\Var(\rf)$ in steps $1$--$5$ and $6$--$15$ is $0.10$ and $0.033$ for exact $Q{+}\Dstar$, $0.32$ and $0.051$ for exact $Q$, and $0.42$ and $0.09$ for the best learned estimator. $\Dstar$ removes $35$--$69\%$ of the variance of exact $Q$, and $\hat\Delta$ removes $30$--$50\%$ of the variance of $\hat Q$. However, this does not lead to faster learning, because after $Q$ the per-step SNR is already above one, and the progress is limited by the step size instead of the noise (\Cref{fig:train8}).
+
+\begin{figure}[h]
+\centering
+% TODO: replace with a paper figure restricted to REINFORCE, fitted Q-hat, the best fitted Q-hat+Delta-hat, and the two exact ceilings.
+\IfFileExists{mcp_dfl_prototype/_train_live_or_curves.png}{\includegraphics[width=\textwidth]{mcp_dfl_prototype/_train_live_or_curves.png}}{\fbox{\parbox{0.9\textwidth}{\centering training curves, eight episodes per step\\(\texttt{mcp\_dfl\_prototype/\_train\_live\_or\_curves.png})}}}
+\caption{Training with cached live-agent rewards (strict reward, four tasks, eight episodes per step). Left: exact $P(\text{success})$ vs.\ agent episodes; thick lines are the mean over seeds and thin lines are single seeds. Right: exact $\Var(\hat g)/\Var(\rf)$ at the current policy. \texttt{oracle\_q} and \texttt{oracle\_qd} use exact $Q$ and exact $Q+\Dstar$; \texttt{qcv} curves are variants of learned $\hat Q$ and $\hat Q+\hat\Delta$; \texttt{rf} is REINFORCE.}
+\label{fig:train8}
+\end{figure}
+
+\end{document}
