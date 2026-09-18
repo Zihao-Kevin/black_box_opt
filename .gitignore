@@ -15,6 +15,7 @@
 *.vrb
 */*_tmp*
 */*_long_runs*
+*.tex
 
 # macOS / Python
 .DS_Store
