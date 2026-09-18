@@ -16,6 +16,7 @@
 */*_tmp*
 */*_long_runs*
 *.tex
+*_free_runs*
 
 # macOS / Python
 .DS_Store
