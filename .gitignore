@@ -17,6 +17,7 @@
 */*_long_runs*
 *.tex
 *_free_runs*
+*_qp_rowwise_runs*
 
 # macOS / Python
 .DS_Store
