@@ -23,6 +23,7 @@
 *_sgd_long*/
 *.npz*
 *.bib*
+*paper_figs_src*/
 # macOS / Python
 .DS_Store
 __pycache__/
