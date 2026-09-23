@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "seed": 20260916,
+  "counts": {
+    "train": 128,
+    "val": 128,
+    "test": 128
+  },
+  "sizes": [
+    [
+      10,
+      5
+    ],
+    [
+      10,
+      10
+    ],
+    [
+      15,
+      5
+    ],
+    [
+      15,
+      10
+    ],
+    [
+      15,
+      15
+    ],
+    [
+      20,
+      5
+    ],
+    [
+      20,
+      10
+    ],
+    [
+      30,
+      10
+    ]
+  ],
+  "families": [
+    "uniform",
+    "bottleneck",
+    "heterogeneous",
+    "correlated_routes"
+  ],
+  "dataset_sha256": "0c11e39f7076b151c9b92f4bc4028bff2ff2a3c9ca65342a33bb7787267123b7",
+  "split_sha256": "ebcb297dd55deff9a38b88e36f78c1b7b6531de9809bc3c4161d1174ddec06d6",
+  "generator_sha256": "70f1ac8f876120dd2b08b6b69b1f4e11ee7e3c7f35007cb46bd5eeb6b64cdd76",
+  "reward_mode": "synthetic_lb",
+  "reward": "max(max_job_work,max_machine_work)/validated_makespan",
+  "protocol": "Validation extension only, 4/4/4 per size-family stratum; original train/test and validation instances unchanged; no score filtering.",
+  "distributions": {
+    "uniform": "independent uniform machine permutations; durations uniform integers 1..99",
+    "bottleneck": "uniform routes and durations; one independently chosen machine durations multiplied by 4",
+    "heterogeneous": "uniform routes; per-job factor uniformly 1/2/4; per-operation uniform 1..25 times factor, with independent 15% 4x outliers",
+    "correlated_routes": "shared uniform machine permutation, max(1,m//5) random pair swaps per job; durations uniform 1..99"
+  },
+  "equivalence_check": "All normalized duration/routing signatures differ; excludes job/machine relabeling and global scaling equivalences, without claiming general graph canonicalization.",
+  "counts_per_stratum": {
+    "train": 4,
+    "val": 4,
+    "test": 4
+  }
+}

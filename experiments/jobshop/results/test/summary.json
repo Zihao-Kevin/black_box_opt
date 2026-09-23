@@ -1,0 +1,1553 @@
+{
+  "runs": {
+    "seed-10/qcv": {
+      "epoch": 22,
+      "validation": {
+        "mean_reward": 0.7788889339573168,
+        "best_of_B": 0.8383478809076389,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 144.38331723213196
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7596470631640216,
+      "best_of_B": 0.8302625710158752,
+      "feasible_rate": 1.0
+    },
+    "seed-10/row_delta": {
+      "epoch": 21,
+      "validation": {
+        "mean_reward": 0.7795193627343324,
+        "best_of_B": 0.838648068492261,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 219.03379368782043
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7584891016460108,
+      "best_of_B": 0.8302116221551564,
+      "feasible_rate": 1.0
+    },
+    "seed-10/grpo": {
+      "epoch": 31,
+      "validation": {
+        "mean_reward": 0.6632243087319684,
+        "best_of_B": 0.8084068240319708,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 241.02908492088318
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.649954531693834,
+      "best_of_B": 0.7929702933523596,
+      "feasible_rate": 1.0
+    },
+    "seed-10/relax": {
+      "epoch": 32,
+      "validation": {
+        "mean_reward": 0.7724549065570188,
+        "best_of_B": 0.8373384694476613,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 117.54972100257874
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7538644437718917,
+      "best_of_B": 0.827033988136582,
+      "feasible_rate": 1.0
+    },
+    "seed-10/rloo": {
+      "epoch": 22,
+      "validation": {
+        "mean_reward": 0.7755332544815419,
+        "best_of_B": 0.8381480141798472,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 215.916565656662
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7574995589069394,
+      "best_of_B": 0.828705925221597,
+      "feasible_rate": 1.0
+    },
+    "seed-10/otb": {
+      "epoch": 26,
+      "validation": {
+        "mean_reward": 0.7665802414686917,
+        "best_of_B": 0.834262346582136,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 184.3401539325714
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7556739140726452,
+      "best_of_B": 0.8275281491932726,
+      "feasible_rate": 1.0
+    },
+    "seed-10/reinforce": {
+      "epoch": 6,
+      "validation": {
+        "mean_reward": 0.7718832500572732,
+        "best_of_B": 0.8210475442512059,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 228.1586616039276
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7646635858763312,
+      "best_of_B": 0.8127546483862289,
+      "feasible_rate": 1.0
+    },
+    "seed-11/qcv": {
+      "epoch": 26,
+      "validation": {
+        "mean_reward": 0.7808449262442609,
+        "best_of_B": 0.8391410089971074,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 141.53362917900085
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7656065988210301,
+      "best_of_B": 0.8330357195121763,
+      "feasible_rate": 1.0
+    },
+    "seed-11/row_delta": {
+      "epoch": 26,
+      "validation": {
+        "mean_reward": 0.7824633759753755,
+        "best_of_B": 0.8393869189483528,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 136.41969799995422
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7665200129140498,
+      "best_of_B": 0.8335199941758846,
+      "feasible_rate": 1.0
+    },
+    "seed-11/grpo": {
+      "epoch": 23,
+      "validation": {
+        "mean_reward": 0.6630094520443284,
+        "best_of_B": 0.8092282612432482,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 225.72105479240417
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.6476430456666377,
+      "best_of_B": 0.7933939953467718,
+      "feasible_rate": 1.0
+    },
+    "seed-11/relax": {
+      "epoch": 19,
+      "validation": {
+        "mean_reward": 0.7750047307144171,
+        "best_of_B": 0.8380768338771416,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 175.67175936698914
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7552750237694791,
+      "best_of_B": 0.8288177187771875,
+      "feasible_rate": 1.0
+    },
+    "seed-11/rloo": {
+      "epoch": 19,
+      "validation": {
+        "mean_reward": 0.7747975881013398,
+        "best_of_B": 0.8382273819751698,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 222.51827692985535
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7577378017505288,
+      "best_of_B": 0.8262646631186408,
+      "feasible_rate": 1.0
+    },
+    "seed-11/otb": {
+      "epoch": 25,
+      "validation": {
+        "mean_reward": 0.7616958735006003,
+        "best_of_B": 0.8370629890115253,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 124.21351861953735
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7466013774246181,
+      "best_of_B": 0.8283338801237836,
+      "feasible_rate": 1.0
+    },
+    "seed-11/reinforce": {
+      "epoch": 5,
+      "validation": {
+        "mean_reward": 0.7820260744113088,
+        "best_of_B": 0.8176281008553803,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 213.12706446647644
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7743302838299493,
+      "best_of_B": 0.8125988263401579,
+      "feasible_rate": 1.0
+    },
+    "seed-12/qcv": {
+      "epoch": 28,
+      "validation": {
+        "mean_reward": 0.7750727880317888,
+        "best_of_B": 0.8386252705513677,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 127.53663802146912
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7639490710308147,
+      "best_of_B": 0.8317026067462482,
+      "feasible_rate": 1.0
+    },
+    "seed-12/row_delta": {
+      "epoch": 24,
+      "validation": {
+        "mean_reward": 0.7762983588136879,
+        "best_of_B": 0.8388987598751896,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 112.30371904373169
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.759400008009416,
+      "best_of_B": 0.8313136354851755,
+      "feasible_rate": 1.0
+    },
+    "seed-12/grpo": {
+      "epoch": 30,
+      "validation": {
+        "mean_reward": 0.6631157115279154,
+        "best_of_B": 0.8067584104732088,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 249.11733555793762
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.6502871772261067,
+      "best_of_B": 0.7912781229622697,
+      "feasible_rate": 1.0
+    },
+    "seed-12/relax": {
+      "epoch": 22,
+      "validation": {
+        "mean_reward": 0.773838977556982,
+        "best_of_B": 0.8370958916012743,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 133.5993778705597
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7582839571826265,
+      "best_of_B": 0.8282186925506381,
+      "feasible_rate": 1.0
+    },
+    "seed-12/rloo": {
+      "epoch": 22,
+      "validation": {
+        "mean_reward": 0.7755929339257099,
+        "best_of_B": 0.8399149319765351,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 213.88509488105774
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7609411038138792,
+      "best_of_B": 0.8290288005131774,
+      "feasible_rate": 1.0
+    },
+    "seed-12/otb": {
+      "epoch": 28,
+      "validation": {
+        "mean_reward": 0.7654839910610831,
+        "best_of_B": 0.8370349948626328,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 214.37178540229797
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7460245213902537,
+      "best_of_B": 0.8235688114325357,
+      "feasible_rate": 1.0
+    },
+    "seed-12/reinforce": {
+      "epoch": 7,
+      "validation": {
+        "mean_reward": 0.7620552835557421,
+        "best_of_B": 0.8207590213708277,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 227.81800389289856
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7553731854434834,
+      "best_of_B": 0.8128813756758131,
+      "feasible_rate": 1.0
+    },
+    "seed-13/qcv": {
+      "epoch": 18,
+      "validation": {
+        "mean_reward": 0.775558367370478,
+        "best_of_B": 0.8386184605988645,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 114.31680226325989
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7631691115781973,
+      "best_of_B": 0.8305377055351489,
+      "feasible_rate": 1.0
+    },
+    "seed-13/row_delta": {
+      "epoch": 24,
+      "validation": {
+        "mean_reward": 0.7749124012970434,
+        "best_of_B": 0.8383059348561537,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 113.29268670082092
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7624009711223632,
+      "best_of_B": 0.8314262717195926,
+      "feasible_rate": 1.0
+    },
+    "seed-13/grpo": {
+      "epoch": 27,
+      "validation": {
+        "mean_reward": 0.6639404193129254,
+        "best_of_B": 0.8075381144631213,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 141.6878695487976
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.6558309920471537,
+      "best_of_B": 0.7942090351601162,
+      "feasible_rate": 1.0
+    },
+    "seed-13/relax": {
+      "epoch": 27,
+      "validation": {
+        "mean_reward": 0.7735414889700694,
+        "best_of_B": 0.8366311835912745,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 179.39203262329102
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7600070200408726,
+      "best_of_B": 0.8293281326594836,
+      "feasible_rate": 1.0
+    },
+    "seed-13/rloo": {
+      "epoch": 23,
+      "validation": {
+        "mean_reward": 0.7740898612336172,
+        "best_of_B": 0.8357013344880495,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 176.64659690856934
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7577876017437,
+      "best_of_B": 0.8276183981887054,
+      "feasible_rate": 1.0
+    },
+    "seed-13/otb": {
+      "epoch": 14,
+      "validation": {
+        "mean_reward": 0.7637629490696004,
+        "best_of_B": 0.8353537992398035,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 153.2425193786621
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7386101308371392,
+      "best_of_B": 0.8258166622971069,
+      "feasible_rate": 1.0
+    },
+    "seed-13/reinforce": {
+      "epoch": 30,
+      "validation": {
+        "mean_reward": 0.7763210089818127,
+        "best_of_B": 0.8393761821878131,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 199.83461022377014
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7670123967299906,
+      "best_of_B": 0.83209440075732,
+      "feasible_rate": 1.0
+    },
+    "seed-14/qcv": {
+      "epoch": 24,
+      "validation": {
+        "mean_reward": 0.7791236954639476,
+        "best_of_B": 0.838820437309907,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 212.81532526016235
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.763357772021403,
+      "best_of_B": 0.8319145822227199,
+      "feasible_rate": 1.0
+    },
+    "seed-14/row_delta": {
+      "epoch": 24,
+      "validation": {
+        "mean_reward": 0.7777668648809868,
+        "best_of_B": 0.8386225821037013,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 103.21719574928284
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7634710795634412,
+      "best_of_B": 0.8324348454981889,
+      "feasible_rate": 1.0
+    },
+    "seed-14/grpo": {
+      "epoch": 31,
+      "validation": {
+        "mean_reward": 0.6634341312023146,
+        "best_of_B": 0.8078091448029323,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 240.0485498905182
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.6526541999589427,
+      "best_of_B": 0.7923728403421716,
+      "feasible_rate": 1.0
+    },
+    "seed-14/relax": {
+      "epoch": 22,
+      "validation": {
+        "mean_reward": 0.7739940994591749,
+        "best_of_B": 0.837148037290788,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 153.01192593574524
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7581781485093709,
+      "best_of_B": 0.827819324227137,
+      "feasible_rate": 1.0
+    },
+    "seed-14/rloo": {
+      "epoch": 24,
+      "validation": {
+        "mean_reward": 0.7759608919988772,
+        "best_of_B": 0.837458548372717,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 132.68025827407837
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7613752598110552,
+      "best_of_B": 0.8289582694059638,
+      "feasible_rate": 1.0
+    },
+    "seed-14/otb": {
+      "epoch": 23,
+      "validation": {
+        "mean_reward": 0.7730662977684284,
+        "best_of_B": 0.8363898048562102,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 182.7133195400238
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7572006522161311,
+      "best_of_B": 0.8271411914254342,
+      "feasible_rate": 1.0
+    },
+    "seed-14/reinforce": {
+      "epoch": 26,
+      "validation": {
+        "mean_reward": 0.770860422099582,
+        "best_of_B": 0.8403044550218479,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 209.2678039073944
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7609987625622882,
+      "best_of_B": 0.8274684601282661,
+      "feasible_rate": 1.0
+    },
+    "seed-15/qcv": {
+      "epoch": 21,
+      "validation": {
+        "mean_reward": 0.7760934183532661,
+        "best_of_B": 0.8381303593439944,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 205.87889075279236
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7639384450677059,
+      "best_of_B": 0.8310012080576447,
+      "feasible_rate": 1.0
+    },
+    "seed-15/row_delta": {
+      "epoch": 29,
+      "validation": {
+        "mean_reward": 0.7779793815747174,
+        "best_of_B": 0.8392349812224768,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 180.3795359134674
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7665150356257512,
+      "best_of_B": 0.8337284392327076,
+      "feasible_rate": 1.0
+    },
+    "seed-15/grpo": {
+      "epoch": 30,
+      "validation": {
+        "mean_reward": 0.6637879548137388,
+        "best_of_B": 0.8083940988284221,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 250.23886370658875
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.6518564537741686,
+      "best_of_B": 0.7946120627763958,
+      "feasible_rate": 1.0
+    },
+    "seed-15/relax": {
+      "epoch": 17,
+      "validation": {
+        "mean_reward": 0.772317740865027,
+        "best_of_B": 0.834544340984678,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 170.04714679718018
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7571555751387814,
+      "best_of_B": 0.8290355989481782,
+      "feasible_rate": 1.0
+    },
+    "seed-15/rloo": {
+      "epoch": 31,
+      "validation": {
+        "mean_reward": 0.7749676366296516,
+        "best_of_B": 0.837206877119635,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 207.20265221595764
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7541197789985092,
+      "best_of_B": 0.8276070729343727,
+      "feasible_rate": 1.0
+    },
+    "seed-15/otb": {
+      "epoch": 18,
+      "validation": {
+        "mean_reward": 0.7636110848562965,
+        "best_of_B": 0.836714285256998,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 215.43723154067993
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7427636303079194,
+      "best_of_B": 0.828118844145642,
+      "feasible_rate": 1.0
+    },
+    "seed-15/reinforce": {
+      "epoch": 6,
+      "validation": {
+        "mean_reward": 0.7617814238190757,
+        "best_of_B": 0.8202247432303416,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 205.83043003082275
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7542315522878142,
+      "best_of_B": 0.8132425343420268,
+      "feasible_rate": 1.0
+    },
+    "seed-16/qcv": {
+      "epoch": 21,
+      "validation": {
+        "mean_reward": 0.7779256524174059,
+        "best_of_B": 0.8388097423310876,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 202.67301845550537
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7620244376325029,
+      "best_of_B": 0.8305713046494406,
+      "feasible_rate": 1.0
+    },
+    "seed-16/row_delta": {
+      "epoch": 26,
+      "validation": {
+        "mean_reward": 0.7781158010695602,
+        "best_of_B": 0.838867187423108,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 144.74400758743286
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7591529331109818,
+      "best_of_B": 0.8304868611940769,
+      "feasible_rate": 1.0
+    },
+    "seed-16/grpo": {
+      "epoch": 30,
+      "validation": {
+        "mean_reward": 0.6684776424876588,
+        "best_of_B": 0.808652455487764,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 235.51539301872253
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.6567059367805879,
+      "best_of_B": 0.7968865665448324,
+      "feasible_rate": 1.0
+    },
+    "seed-16/relax": {
+      "epoch": 26,
+      "validation": {
+        "mean_reward": 0.7733968678495245,
+        "best_of_B": 0.8388608816443256,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 191.77039980888367
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7623096546172294,
+      "best_of_B": 0.8331173252859593,
+      "feasible_rate": 1.0
+    },
+    "seed-16/rloo": {
+      "epoch": 19,
+      "validation": {
+        "mean_reward": 0.7751157792291556,
+        "best_of_B": 0.8379308944027675,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 227.856036901474
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7607313687119768,
+      "best_of_B": 0.8300389059159817,
+      "feasible_rate": 1.0
+    },
+    "seed-16/otb": {
+      "epoch": 30,
+      "validation": {
+        "mean_reward": 0.7635522491259836,
+        "best_of_B": 0.836427220090681,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 217.8385910987854
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7442429200668244,
+      "best_of_B": 0.8262477037594864,
+      "feasible_rate": 1.0
+    },
+    "seed-16/reinforce": {
+      "epoch": 7,
+      "validation": {
+        "mean_reward": 0.7667374929047444,
+        "best_of_B": 0.8201775178750534,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 215.54053902626038
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7587379802786091,
+      "best_of_B": 0.8122830534289365,
+      "feasible_rate": 1.0
+    },
+    "seed-17/qcv": {
+      "epoch": 29,
+      "validation": {
+        "mean_reward": 0.78165452456265,
+        "best_of_B": 0.8394378279164596,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 158.3539478778839
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7619164902901255,
+      "best_of_B": 0.8321159672715418,
+      "feasible_rate": 1.0
+    },
+    "seed-17/row_delta": {
+      "epoch": 25,
+      "validation": {
+        "mean_reward": 0.7783568831795704,
+        "best_of_B": 0.8395686641062929,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 124.50427961349487
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7649895742316448,
+      "best_of_B": 0.8328945531208806,
+      "feasible_rate": 1.0
+    },
+    "seed-17/grpo": {
+      "epoch": 29,
+      "validation": {
+        "mean_reward": 0.6657635528852917,
+        "best_of_B": 0.8052599423437325,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 217.91650319099426
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.6506834520365983,
+      "best_of_B": 0.7924630640643247,
+      "feasible_rate": 1.0
+    },
+    "seed-17/relax": {
+      "epoch": 28,
+      "validation": {
+        "mean_reward": 0.7770076393021808,
+        "best_of_B": 0.8393247843673945,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 115.01471757888794
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7580236595442117,
+      "best_of_B": 0.8308561863488028,
+      "feasible_rate": 1.0
+    },
+    "seed-17/rloo": {
+      "epoch": 28,
+      "validation": {
+        "mean_reward": 0.7760869486601139,
+        "best_of_B": 0.8370600739684612,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 225.6527636051178
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7610807109232582,
+      "best_of_B": 0.8285496702560385,
+      "feasible_rate": 1.0
+    },
+    "seed-17/otb": {
+      "epoch": 16,
+      "validation": {
+        "mean_reward": 0.7635530202491401,
+        "best_of_B": 0.8360599866959953,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 164.8178994655609
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.746797791667829,
+      "best_of_B": 0.8256427309401592,
+      "feasible_rate": 1.0
+    },
+    "seed-17/reinforce": {
+      "epoch": 28,
+      "validation": {
+        "mean_reward": 0.7715214701441794,
+        "best_of_B": 0.8365089127768608,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 202.28831720352173
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7625833021579181,
+      "best_of_B": 0.829383262028607,
+      "feasible_rate": 1.0
+    },
+    "seed-18/qcv": {
+      "epoch": 22,
+      "validation": {
+        "mean_reward": 0.7771637051319902,
+        "best_of_B": 0.8380728314541775,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 201.12600111961365
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7637929270305669,
+      "best_of_B": 0.831750037569717,
+      "feasible_rate": 1.0
+    },
+    "seed-18/row_delta": {
+      "epoch": 32,
+      "validation": {
+        "mean_reward": 0.7764383663453446,
+        "best_of_B": 0.8380714793230243,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 137.1468915939331
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.759989580159755,
+      "best_of_B": 0.8309781066364362,
+      "feasible_rate": 1.0
+    },
+    "seed-18/grpo": {
+      "epoch": 32,
+      "validation": {
+        "mean_reward": 0.6685287264638352,
+        "best_of_B": 0.8083900448453464,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 175.33884739875793
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.6601632253057829,
+      "best_of_B": 0.7932716775397349,
+      "feasible_rate": 1.0
+    },
+    "seed-18/relax": {
+      "epoch": 28,
+      "validation": {
+        "mean_reward": 0.77572277508254,
+        "best_of_B": 0.8375450591109124,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 114.46345901489258
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7583278851110594,
+      "best_of_B": 0.8296361305642763,
+      "feasible_rate": 1.0
+    },
+    "seed-18/rloo": {
+      "epoch": 29,
+      "validation": {
+        "mean_reward": 0.7801131284890821,
+        "best_of_B": 0.8375728950652613,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 283.4260587692261
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7653854623148726,
+      "best_of_B": 0.8291397129311527,
+      "feasible_rate": 1.0
+    },
+    "seed-18/otb": {
+      "epoch": 28,
+      "validation": {
+        "mean_reward": 0.7688690457982067,
+        "best_of_B": 0.8371429546963771,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 236.16396975517273
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7537164276005462,
+      "best_of_B": 0.8299347540604874,
+      "feasible_rate": 1.0
+    },
+    "seed-18/reinforce": {
+      "epoch": 5,
+      "validation": {
+        "mean_reward": 0.7554419442241087,
+        "best_of_B": 0.8205176239812874,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 169.5254671573639
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7504836048585727,
+      "best_of_B": 0.8113171912292741,
+      "feasible_rate": 1.0
+    },
+    "seed-19/qcv": {
+      "epoch": 26,
+      "validation": {
+        "mean_reward": 0.7767084494387976,
+        "best_of_B": 0.8383987639660724,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 186.15505361557007
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7641838391015707,
+      "best_of_B": 0.8332554732460832,
+      "feasible_rate": 1.0
+    },
+    "seed-19/row_delta": {
+      "epoch": 25,
+      "validation": {
+        "mean_reward": 0.7756455486206726,
+        "best_of_B": 0.838089940204021,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 100.48483300209045
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7617302589512349,
+      "best_of_B": 0.8322538361665546,
+      "feasible_rate": 1.0
+    },
+    "seed-19/grpo": {
+      "epoch": 28,
+      "validation": {
+        "mean_reward": 0.6612794413179195,
+        "best_of_B": 0.808513750472578,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 185.20582818984985
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.6485509381887994,
+      "best_of_B": 0.7925724769762005,
+      "feasible_rate": 1.0
+    },
+    "seed-19/relax": {
+      "epoch": 30,
+      "validation": {
+        "mean_reward": 0.7727528307227403,
+        "best_of_B": 0.8363783178535875,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 127.58700466156006
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7535736022954709,
+      "best_of_B": 0.8272481843512725,
+      "feasible_rate": 1.0
+    },
+    "seed-19/rloo": {
+      "epoch": 21,
+      "validation": {
+        "mean_reward": 0.776872117944293,
+        "best_of_B": 0.8382985537240757,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 253.21859288215637
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.75971937232455,
+      "best_of_B": 0.8306110885203984,
+      "feasible_rate": 1.0
+    },
+    "seed-19/otb": {
+      "epoch": 17,
+      "validation": {
+        "mean_reward": 0.7698475131282547,
+        "best_of_B": 0.8365984984505122,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 161.60100722312927
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7485346232571617,
+      "best_of_B": 0.8264406712047796,
+      "feasible_rate": 1.0
+    },
+    "seed-19/reinforce": {
+      "epoch": 24,
+      "validation": {
+        "mean_reward": 0.7695547224758263,
+        "best_of_B": 0.8365116074983063,
+        "candidate_evaluations": 512,
+        "feasible_rate": 1.0,
+        "plan_legal_rate": 1.0,
+        "B": 4,
+        "partition": "val",
+        "mismatch": false,
+        "wall_seconds": 130.26607370376587
+      },
+      "partition": "test",
+      "instances": 128,
+      "B": 4,
+      "candidate_evaluations": 512,
+      "mean_reward": 0.7539784117490012,
+      "best_of_B": 0.8263925009212918,
+      "feasible_rate": 1.0
+    }
+  },
+  "aggregate": {
+    "grpo": {
+      "seeds": 10,
+      "mean_reward": {
+        "mean": 0.6524329952678611,
+        "seed_std": 0.003968828569871706
+      },
+      "best_of_B": {
+        "mean": 0.7934030135065178,
+        "seed_std": 0.0015492257013907927
+      }
+    },
+    "otb": {
+      "seeds": 10,
+      "mean_reward": {
+        "mean": 0.7480165988841068,
+        "seed_std": 0.005902074922321987
+      },
+      "best_of_B": {
+        "mean": 0.8268773398582687,
+        "seed_std": 0.0017539343718789607
+      }
+    },
+    "qcv": {
+      "seeds": 10,
+      "mean_reward": {
+        "mean": 0.7631585755737939,
+        "seed_std": 0.0016288720959304601
+      },
+      "best_of_B": {
+        "mean": 0.8316147175826596,
+        "seed_std": 0.0010291253817752092
+      }
+    },
+    "reinforce": {
+      "seeds": 10,
+      "mean_reward": {
+        "mean": 0.7602393065773958,
+        "seed_std": 0.007199340042013352
+      },
+      "best_of_B": {
+        "mean": 0.8190416253237922,
+        "seed_std": 0.008565631318498405
+      }
+    },
+    "relax": {
+      "seeds": 10,
+      "mean_reward": {
+        "mean": 0.7574998969980994,
+        "seed_std": 0.0026906221913624473
+      },
+      "best_of_B": {
+        "mean": 0.8291111281849517,
+        "seed_std": 0.0018184127611305988
+      }
+    },
+    "rloo": {
+      "seeds": 10,
+      "mean_reward": {
+        "mean": 0.7596378019299269,
+        "seed_std": 0.003038482547022329
+      },
+      "best_of_B": {
+        "mean": 0.8286522507006029,
+        "seed_std": 0.0012520268309567882
+      }
+    },
+    "row_delta": {
+      "seeds": 10,
+      "mean_reward": {
+        "mean": 0.7622658555334648,
+        "seed_std": 0.003030921796872792
+      },
+      "best_of_B": {
+        "mean": 0.8319248165384654,
+        "seed_std": 0.0012305156297345472
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "numerical_tests_passed": 13,
+  "test_note": "12 passed in first suite; historical test import corrected to baseline_train and remaining test passed separately",
+  "selected_checkpoints_verified": 70,
+  "test_candidates_verified": 35840,
+  "test_feasible_rate": 1.0,
+  "source_snapshot_hashes_verified": true,
+  "portable_launchers": "syntax checked; not used to rerun full 70-run campaign"
+}

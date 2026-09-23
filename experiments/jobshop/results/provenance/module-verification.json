@@ -1,0 +1,26 @@
+{
+  "verified_against": "Kings canonical project modules at publication time",
+  "all_match": true,
+  "sha256": {
+    "jobshop_rl/row_math.py": "c8705f2c19eda792c63bb128f3abf2be3cfc2da6dde421ba376d051e6fe6036c",
+    "jobshop_rl/worker.py": "fc705cced6225bd79081bdd1c39e2eca60d44d7c1bed27f9763af2013c2dfa2a",
+    "jobshop_rl/synthetic.py": "70f1ac8f876120dd2b08b6b69b1f4e11ee7e3c7f35007cb46bd5eeb6b64cdd76",
+    "jobshop_rl/row_prepare_sharded.py": "3a763806680274bae6d2b4c676b0edb90796d10883fa8012ca3923fbe5451831",
+    "jobshop_rl/kings_val128_train.py": "765f3ac42879feab3ab92db26f6a7bd5d3071e72543af61f9e47ed2f4a13cc5e",
+    "jobshop_rl/dispatch_entropy.py": "24a5a61be975c2f0f83e447b3ed949e458be7404d1464942d782dbc840b7ec32",
+    "jobshop_rl/dynamic_reward.py": "cc0773c9598443c0079f728740a7f4682d213b2d0645660f761c99e48f44b431",
+    "jobshop_rl/actions.py": "9093bac0c29597ac9b2d3a5d91d5352d5cae1c624ce4d3b1293cf1dc8e7ed399",
+    "jobshop_rl/__init__.py": "da054404ef8fa6e635a628d5d10668ddbbe53a460d1167062cf7406f21e6c874",
+    "jobshop_rl/offline_reward.py": "043e3f8e7d28f5bb93df462ab5971e465cb73a463a3876dd1bdc0b6cd031c192",
+    "jobshop_rl/selected_test.py": "de8d71882b06898480b8be4127589b1bbed335be1e7224ad8b76ceb1c98bd5ba",
+    "jobshop_rl/persistent_evaluator.py": "ff3696f55021f39a45f31113b686e15c49c7a845ad4ab72c97b8f9f00c4d33d6",
+    "jobshop_rl/upstream_baselines.py": "be94116450fc9ff99b1072f54951cb29020e9c04a5a936d8a52ff5d4bd3352e2",
+    "jobshop_rl/baseline_train.py": "3b49a0944b0acbf7824fdc340a6031374687ceb252b9ca205568b5004d883533",
+    "jobshop_rl/row_tree.py": "94b4fdbc061b0c56b2dc63efedea93b21668aef787b273a5619ed123a1579783",
+    "jobshop_rl/baseline_adapter.py": "eedd208f9706169d069a43b9f72cac4b4e24d94aa49a8e3255597a24feed2021",
+    "jobshop_rl/evaluator.py": "a89ca1cd6fc3f93d54008b286b3284a038c8def69aa75e96e2ea9565fc530bc0",
+    "jobshop_rl/persistent_server.py": "cc392bc79182a3b9130e3935373bd7b7cfa7483c7b2698cb1421f763f80c3931",
+    "jobshop_rl/data.py": "4d57e12bda7e12fe1cc68c3d36ae64bb457ed5f2fbbce9c8ec78a2dc0d6abd3d"
+  },
+  "portable_changes": "test_prepare_stream_val128.py uses JOBSHOP_FEATURE_CACHE instead of a Kings-specific absolute path; original retained in source-snapshot"
+}

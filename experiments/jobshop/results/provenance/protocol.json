@@ -1,0 +1,45 @@
+{
+  "seeds": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "methods": [
+    "qcv",
+    "row_delta",
+    "grpo",
+    "relax",
+    "rloo",
+    "otb",
+    "reinforce"
+  ],
+  "epochs": 32,
+  "entropy_beta": 0.1,
+  "train_instances": 128,
+  "val_instances": 128,
+  "test_instances": 128,
+  "validation_B": 4,
+  "selection": "Maximum validation mean reward, earliest epoch on ties; initial eligible; test never selects",
+  "checkpoint_retention": "initial and every epoch actor, plus latest full resume state",
+  "training_evaluations": 2293760,
+  "validation_evaluations": 1218560,
+  "gpus": [
+    "GPU-731dbe21-8365-ef1f-04dc-5f04615685fe",
+    "GPU-332524b6-e4d6-4d51-4267-e74f9d7cce7d",
+    "GPU-dfd05fcb-2d00-990a-dc38-1e38ce22eb2d",
+    "GPU-0f48937b-82f4-bf1f-e24b-8013aead1c1f",
+    "GPU-ddbf30aa-9711-94d5-2d46-9229106c50c8",
+    "GPU-49888b8f-006a-6b55-e6e7-f0b9333c611c",
+    "GPU-3c160d5f-167a-e705-cd97-980f93e69750"
+  ],
+  "config": "configs/synthetic-val128-v1.json",
+  "cache": "/tmp/szhang3007-jobshop-kings/val128-n10/cache",
+  "created_at": 1790134660.5733235
+}

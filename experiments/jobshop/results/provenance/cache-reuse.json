@@ -1,0 +1,6 @@
+{
+  "reused": 179,
+  "total": 256,
+  "source": "/tmp/szhang3007-jobshop-kings/val512-n10",
+  "checks": "Identical planner and per-instance input; inherited checked feature tensors; new dataset identity"
+}

@@ -1,0 +1,1036 @@
+{
+  "train": [
+    "syn1_10x5_uniform_train_00",
+    "syn1_10x5_uniform_train_01",
+    "syn1_10x5_uniform_train_02",
+    "syn1_10x5_uniform_train_03",
+    "syn1_10x5_bottleneck_train_00",
+    "syn1_10x5_bottleneck_train_01",
+    "syn1_10x5_bottleneck_train_02",
+    "syn1_10x5_bottleneck_train_03",
+    "syn1_10x5_heterogeneous_train_00",
+    "syn1_10x5_heterogeneous_train_01",
+    "syn1_10x5_heterogeneous_train_02",
+    "syn1_10x5_heterogeneous_train_03",
+    "syn1_10x5_correlated_routes_train_00",
+    "syn1_10x5_correlated_routes_train_01",
+    "syn1_10x5_correlated_routes_train_02",
+    "syn1_10x5_correlated_routes_train_03",
+    "syn1_10x10_uniform_train_00",
+    "syn1_10x10_uniform_train_01",
+    "syn1_10x10_uniform_train_02",
+    "syn1_10x10_uniform_train_03",
+    "syn1_10x10_bottleneck_train_00",
+    "syn1_10x10_bottleneck_train_01",
+    "syn1_10x10_bottleneck_train_02",
+    "syn1_10x10_bottleneck_train_03",
+    "syn1_10x10_heterogeneous_train_00",
+    "syn1_10x10_heterogeneous_train_01",
+    "syn1_10x10_heterogeneous_train_02",
+    "syn1_10x10_heterogeneous_train_03",
+    "syn1_10x10_correlated_routes_train_00",
+    "syn1_10x10_correlated_routes_train_01",
+    "syn1_10x10_correlated_routes_train_02",
+    "syn1_10x10_correlated_routes_train_03",
+    "syn1_15x5_uniform_train_00",
+    "syn1_15x5_uniform_train_01",
+    "syn1_15x5_uniform_train_02",
+    "syn1_15x5_uniform_train_03",
+    "syn1_15x5_bottleneck_train_00",
+    "syn1_15x5_bottleneck_train_01",
+    "syn1_15x5_bottleneck_train_02",
+    "syn1_15x5_bottleneck_train_03",
+    "syn1_15x5_heterogeneous_train_00",
+    "syn1_15x5_heterogeneous_train_01",
+    "syn1_15x5_heterogeneous_train_02",
+    "syn1_15x5_heterogeneous_train_03",
+    "syn1_15x5_correlated_routes_train_00",
+    "syn1_15x5_correlated_routes_train_01",
+    "syn1_15x5_correlated_routes_train_02",
+    "syn1_15x5_correlated_routes_train_03",
+    "syn1_15x10_uniform_train_00",
+    "syn1_15x10_uniform_train_01",
+    "syn1_15x10_uniform_train_02",
+    "syn1_15x10_uniform_train_03",
+    "syn1_15x10_bottleneck_train_00",
+    "syn1_15x10_bottleneck_train_01",
+    "syn1_15x10_bottleneck_train_02",
+    "syn1_15x10_bottleneck_train_03",
+    "syn1_15x10_heterogeneous_train_00",
+    "syn1_15x10_heterogeneous_train_01",
+    "syn1_15x10_heterogeneous_train_02",
+    "syn1_15x10_heterogeneous_train_03",
+    "syn1_15x10_correlated_routes_train_00",
+    "syn1_15x10_correlated_routes_train_01",
+    "syn1_15x10_correlated_routes_train_02",
+    "syn1_15x10_correlated_routes_train_03",
+    "syn1_15x15_uniform_train_00",
+    "syn1_15x15_uniform_train_01",
+    "syn1_15x15_uniform_train_02",
+    "syn1_15x15_uniform_train_03",
+    "syn1_15x15_bottleneck_train_00",
+    "syn1_15x15_bottleneck_train_01",
+    "syn1_15x15_bottleneck_train_02",
+    "syn1_15x15_bottleneck_train_03",
+    "syn1_15x15_heterogeneous_train_00",
+    "syn1_15x15_heterogeneous_train_01",
+    "syn1_15x15_heterogeneous_train_02",
+    "syn1_15x15_heterogeneous_train_03",
+    "syn1_15x15_correlated_routes_train_00",
+    "syn1_15x15_correlated_routes_train_01",
+    "syn1_15x15_correlated_routes_train_02",
+    "syn1_15x15_correlated_routes_train_03",
+    "syn1_20x5_uniform_train_00",
+    "syn1_20x5_uniform_train_01",
+    "syn1_20x5_uniform_train_02",
+    "syn1_20x5_uniform_train_03",
+    "syn1_20x5_bottleneck_train_00",
+    "syn1_20x5_bottleneck_train_01",
+    "syn1_20x5_bottleneck_train_02",
+    "syn1_20x5_bottleneck_train_03",
+    "syn1_20x5_heterogeneous_train_00",
+    "syn1_20x5_heterogeneous_train_01",
+    "syn1_20x5_heterogeneous_train_02",
+    "syn1_20x5_heterogeneous_train_03",
+    "syn1_20x5_correlated_routes_train_00",
+    "syn1_20x5_correlated_routes_train_01",
+    "syn1_20x5_correlated_routes_train_02",
+    "syn1_20x5_correlated_routes_train_03",
+    "syn1_20x10_uniform_train_00",
+    "syn1_20x10_uniform_train_01",
+    "syn1_20x10_uniform_train_02",
+    "syn1_20x10_uniform_train_03",
+    "syn1_20x10_bottleneck_train_00",
+    "syn1_20x10_bottleneck_train_01",
+    "syn1_20x10_bottleneck_train_02",
+    "syn1_20x10_bottleneck_train_03",
+    "syn1_20x10_heterogeneous_train_00",
+    "syn1_20x10_heterogeneous_train_01",
+    "syn1_20x10_heterogeneous_train_02",
+    "syn1_20x10_heterogeneous_train_03",
+    "syn1_20x10_correlated_routes_train_00",
+    "syn1_20x10_correlated_routes_train_01",
+    "syn1_20x10_correlated_routes_train_02",
+    "syn1_20x10_correlated_routes_train_03",
+    "syn1_30x10_uniform_train_00",
+    "syn1_30x10_uniform_train_01",
+    "syn1_30x10_uniform_train_02",
+    "syn1_30x10_uniform_train_03",
+    "syn1_30x10_bottleneck_train_00",
+    "syn1_30x10_bottleneck_train_01",
+    "syn1_30x10_bottleneck_train_02",
+    "syn1_30x10_bottleneck_train_03",
+    "syn1_30x10_heterogeneous_train_00",
+    "syn1_30x10_heterogeneous_train_01",
+    "syn1_30x10_heterogeneous_train_02",
+    "syn1_30x10_heterogeneous_train_03",
+    "syn1_30x10_correlated_routes_train_00",
+    "syn1_30x10_correlated_routes_train_01",
+    "syn1_30x10_correlated_routes_train_02",
+    "syn1_30x10_correlated_routes_train_03"
+  ],
+  "val": [
+    "syn1_10x5_uniform_val_00",
+    "syn1_10x5_uniform_val_01",
+    "syn1_10x5_uniform_val_02",
+    "syn1_10x5_uniform_val_03",
+    "syn1_10x5_bottleneck_val_00",
+    "syn1_10x5_bottleneck_val_01",
+    "syn1_10x5_bottleneck_val_02",
+    "syn1_10x5_bottleneck_val_03",
+    "syn1_10x5_heterogeneous_val_00",
+    "syn1_10x5_heterogeneous_val_01",
+    "syn1_10x5_heterogeneous_val_02",
+    "syn1_10x5_heterogeneous_val_03",
+    "syn1_10x5_correlated_routes_val_00",
+    "syn1_10x5_correlated_routes_val_01",
+    "syn1_10x5_correlated_routes_val_02",
+    "syn1_10x5_correlated_routes_val_03",
+    "syn1_10x10_uniform_val_00",
+    "syn1_10x10_uniform_val_01",
+    "syn1_10x10_uniform_val_02",
+    "syn1_10x10_uniform_val_03",
+    "syn1_10x10_bottleneck_val_00",
+    "syn1_10x10_bottleneck_val_01",
+    "syn1_10x10_bottleneck_val_02",
+    "syn1_10x10_bottleneck_val_03",
+    "syn1_10x10_heterogeneous_val_00",
+    "syn1_10x10_heterogeneous_val_01",
+    "syn1_10x10_heterogeneous_val_02",
+    "syn1_10x10_heterogeneous_val_03",
+    "syn1_10x10_correlated_routes_val_00",
+    "syn1_10x10_correlated_routes_val_01",
+    "syn1_10x10_correlated_routes_val_02",
+    "syn1_10x10_correlated_routes_val_03",
+    "syn1_15x5_uniform_val_00",
+    "syn1_15x5_uniform_val_01",
+    "syn1_15x5_uniform_val_02",
+    "syn1_15x5_uniform_val_03",
+    "syn1_15x5_bottleneck_val_00",
+    "syn1_15x5_bottleneck_val_01",
+    "syn1_15x5_bottleneck_val_02",
+    "syn1_15x5_bottleneck_val_03",
+    "syn1_15x5_heterogeneous_val_00",
+    "syn1_15x5_heterogeneous_val_01",
+    "syn1_15x5_heterogeneous_val_02",
+    "syn1_15x5_heterogeneous_val_03",
+    "syn1_15x5_correlated_routes_val_00",
+    "syn1_15x5_correlated_routes_val_01",
+    "syn1_15x5_correlated_routes_val_02",
+    "syn1_15x5_correlated_routes_val_03",
+    "syn1_15x10_uniform_val_00",
+    "syn1_15x10_uniform_val_01",
+    "syn1_15x10_uniform_val_02",
+    "syn1_15x10_uniform_val_03",
+    "syn1_15x10_bottleneck_val_00",
+    "syn1_15x10_bottleneck_val_01",
+    "syn1_15x10_bottleneck_val_02",
+    "syn1_15x10_bottleneck_val_03",
+    "syn1_15x10_heterogeneous_val_00",
+    "syn1_15x10_heterogeneous_val_01",
+    "syn1_15x10_heterogeneous_val_02",
+    "syn1_15x10_heterogeneous_val_03",
+    "syn1_15x10_correlated_routes_val_00",
+    "syn1_15x10_correlated_routes_val_01",
+    "syn1_15x10_correlated_routes_val_02",
+    "syn1_15x10_correlated_routes_val_03",
+    "syn1_15x15_uniform_val_00",
+    "syn1_15x15_uniform_val_01",
+    "syn1_15x15_uniform_val_02",
+    "syn1_15x15_uniform_val_03",
+    "syn1_15x15_bottleneck_val_00",
+    "syn1_15x15_bottleneck_val_01",
+    "syn1_15x15_bottleneck_val_02",
+    "syn1_15x15_bottleneck_val_03",
+    "syn1_15x15_heterogeneous_val_00",
+    "syn1_15x15_heterogeneous_val_01",
+    "syn1_15x15_heterogeneous_val_02",
+    "syn1_15x15_heterogeneous_val_03",
+    "syn1_15x15_correlated_routes_val_00",
+    "syn1_15x15_correlated_routes_val_01",
+    "syn1_15x15_correlated_routes_val_02",
+    "syn1_15x15_correlated_routes_val_03",
+    "syn1_20x5_uniform_val_00",
+    "syn1_20x5_uniform_val_01",
+    "syn1_20x5_uniform_val_02",
+    "syn1_20x5_uniform_val_03",
+    "syn1_20x5_bottleneck_val_00",
+    "syn1_20x5_bottleneck_val_01",
+    "syn1_20x5_bottleneck_val_02",
+    "syn1_20x5_bottleneck_val_03",
+    "syn1_20x5_heterogeneous_val_00",
+    "syn1_20x5_heterogeneous_val_01",
+    "syn1_20x5_heterogeneous_val_02",
+    "syn1_20x5_heterogeneous_val_03",
+    "syn1_20x5_correlated_routes_val_00",
+    "syn1_20x5_correlated_routes_val_01",
+    "syn1_20x5_correlated_routes_val_02",
+    "syn1_20x5_correlated_routes_val_03",
+    "syn1_20x10_uniform_val_00",
+    "syn1_20x10_uniform_val_01",
+    "syn1_20x10_uniform_val_02",
+    "syn1_20x10_uniform_val_03",
+    "syn1_20x10_bottleneck_val_00",
+    "syn1_20x10_bottleneck_val_01",
+    "syn1_20x10_bottleneck_val_02",
+    "syn1_20x10_bottleneck_val_03",
+    "syn1_20x10_heterogeneous_val_00",
+    "syn1_20x10_heterogeneous_val_01",
+    "syn1_20x10_heterogeneous_val_02",
+    "syn1_20x10_heterogeneous_val_03",
+    "syn1_20x10_correlated_routes_val_00",
+    "syn1_20x10_correlated_routes_val_01",
+    "syn1_20x10_correlated_routes_val_02",
+    "syn1_20x10_correlated_routes_val_03",
+    "syn1_30x10_uniform_val_00",
+    "syn1_30x10_uniform_val_01",
+    "syn1_30x10_uniform_val_02",
+    "syn1_30x10_uniform_val_03",
+    "syn1_30x10_bottleneck_val_00",
+    "syn1_30x10_bottleneck_val_01",
+    "syn1_30x10_bottleneck_val_02",
+    "syn1_30x10_bottleneck_val_03",
+    "syn1_30x10_heterogeneous_val_00",
+    "syn1_30x10_heterogeneous_val_01",
+    "syn1_30x10_heterogeneous_val_02",
+    "syn1_30x10_heterogeneous_val_03",
+    "syn1_30x10_correlated_routes_val_00",
+    "syn1_30x10_correlated_routes_val_01",
+    "syn1_30x10_correlated_routes_val_02",
+    "syn1_30x10_correlated_routes_val_03"
+  ],
+  "test": [
+    "syn1_10x5_uniform_test_00",
+    "syn1_10x5_uniform_test_01",
+    "syn1_10x5_uniform_test_02",
+    "syn1_10x5_uniform_test_03",
+    "syn1_10x5_bottleneck_test_00",
+    "syn1_10x5_bottleneck_test_01",
+    "syn1_10x5_bottleneck_test_02",
+    "syn1_10x5_bottleneck_test_03",
+    "syn1_10x5_heterogeneous_test_00",
+    "syn1_10x5_heterogeneous_test_01",
+    "syn1_10x5_heterogeneous_test_02",
+    "syn1_10x5_heterogeneous_test_03",
+    "syn1_10x5_correlated_routes_test_00",
+    "syn1_10x5_correlated_routes_test_01",
+    "syn1_10x5_correlated_routes_test_02",
+    "syn1_10x5_correlated_routes_test_03",
+    "syn1_10x10_uniform_test_00",
+    "syn1_10x10_uniform_test_01",
+    "syn1_10x10_uniform_test_02",
+    "syn1_10x10_uniform_test_03",
+    "syn1_10x10_bottleneck_test_00",
+    "syn1_10x10_bottleneck_test_01",
+    "syn1_10x10_bottleneck_test_02",
+    "syn1_10x10_bottleneck_test_03",
+    "syn1_10x10_heterogeneous_test_00",
+    "syn1_10x10_heterogeneous_test_01",
+    "syn1_10x10_heterogeneous_test_02",
+    "syn1_10x10_heterogeneous_test_03",
+    "syn1_10x10_correlated_routes_test_00",
+    "syn1_10x10_correlated_routes_test_01",
+    "syn1_10x10_correlated_routes_test_02",
+    "syn1_10x10_correlated_routes_test_03",
+    "syn1_15x5_uniform_test_00",
+    "syn1_15x5_uniform_test_01",
+    "syn1_15x5_uniform_test_02",
+    "syn1_15x5_uniform_test_03",
+    "syn1_15x5_bottleneck_test_00",
+    "syn1_15x5_bottleneck_test_01",
+    "syn1_15x5_bottleneck_test_02",
+    "syn1_15x5_bottleneck_test_03",
+    "syn1_15x5_heterogeneous_test_00",
+    "syn1_15x5_heterogeneous_test_01",
+    "syn1_15x5_heterogeneous_test_02",
+    "syn1_15x5_heterogeneous_test_03",
+    "syn1_15x5_correlated_routes_test_00",
+    "syn1_15x5_correlated_routes_test_01",
+    "syn1_15x5_correlated_routes_test_02",
+    "syn1_15x5_correlated_routes_test_03",
+    "syn1_15x10_uniform_test_00",
+    "syn1_15x10_uniform_test_01",
+    "syn1_15x10_uniform_test_02",
+    "syn1_15x10_uniform_test_03",
+    "syn1_15x10_bottleneck_test_00",
+    "syn1_15x10_bottleneck_test_01",
+    "syn1_15x10_bottleneck_test_02",
+    "syn1_15x10_bottleneck_test_03",
+    "syn1_15x10_heterogeneous_test_00",
+    "syn1_15x10_heterogeneous_test_01",
+    "syn1_15x10_heterogeneous_test_02",
+    "syn1_15x10_heterogeneous_test_03",
+    "syn1_15x10_correlated_routes_test_00",
+    "syn1_15x10_correlated_routes_test_01",
+    "syn1_15x10_correlated_routes_test_02",
+    "syn1_15x10_correlated_routes_test_03",
+    "syn1_15x15_uniform_test_00",
+    "syn1_15x15_uniform_test_01",
+    "syn1_15x15_uniform_test_02",
+    "syn1_15x15_uniform_test_03",
+    "syn1_15x15_bottleneck_test_00",
+    "syn1_15x15_bottleneck_test_01",
+    "syn1_15x15_bottleneck_test_02",
+    "syn1_15x15_bottleneck_test_03",
+    "syn1_15x15_heterogeneous_test_00",
+    "syn1_15x15_heterogeneous_test_01",
+    "syn1_15x15_heterogeneous_test_02",
+    "syn1_15x15_heterogeneous_test_03",
+    "syn1_15x15_correlated_routes_test_00",
+    "syn1_15x15_correlated_routes_test_01",
+    "syn1_15x15_correlated_routes_test_02",
+    "syn1_15x15_correlated_routes_test_03",
+    "syn1_20x5_uniform_test_00",
+    "syn1_20x5_uniform_test_01",
+    "syn1_20x5_uniform_test_02",
+    "syn1_20x5_uniform_test_03",
+    "syn1_20x5_bottleneck_test_00",
+    "syn1_20x5_bottleneck_test_01",
+    "syn1_20x5_bottleneck_test_02",
+    "syn1_20x5_bottleneck_test_03",
+    "syn1_20x5_heterogeneous_test_00",
+    "syn1_20x5_heterogeneous_test_01",
+    "syn1_20x5_heterogeneous_test_02",
+    "syn1_20x5_heterogeneous_test_03",
+    "syn1_20x5_correlated_routes_test_00",
+    "syn1_20x5_correlated_routes_test_01",
+    "syn1_20x5_correlated_routes_test_02",
+    "syn1_20x5_correlated_routes_test_03",
+    "syn1_20x10_uniform_test_00",
+    "syn1_20x10_uniform_test_01",
+    "syn1_20x10_uniform_test_02",
+    "syn1_20x10_uniform_test_03",
+    "syn1_20x10_bottleneck_test_00",
+    "syn1_20x10_bottleneck_test_01",
+    "syn1_20x10_bottleneck_test_02",
+    "syn1_20x10_bottleneck_test_03",
+    "syn1_20x10_heterogeneous_test_00",
+    "syn1_20x10_heterogeneous_test_01",
+    "syn1_20x10_heterogeneous_test_02",
+    "syn1_20x10_heterogeneous_test_03",
+    "syn1_20x10_correlated_routes_test_00",
+    "syn1_20x10_correlated_routes_test_01",
+    "syn1_20x10_correlated_routes_test_02",
+    "syn1_20x10_correlated_routes_test_03",
+    "syn1_30x10_uniform_test_00",
+    "syn1_30x10_uniform_test_01",
+    "syn1_30x10_uniform_test_02",
+    "syn1_30x10_uniform_test_03",
+    "syn1_30x10_bottleneck_test_00",
+    "syn1_30x10_bottleneck_test_01",
+    "syn1_30x10_bottleneck_test_02",
+    "syn1_30x10_bottleneck_test_03",
+    "syn1_30x10_heterogeneous_test_00",
+    "syn1_30x10_heterogeneous_test_01",
+    "syn1_30x10_heterogeneous_test_02",
+    "syn1_30x10_heterogeneous_test_03",
+    "syn1_30x10_correlated_routes_test_00",
+    "syn1_30x10_correlated_routes_test_01",
+    "syn1_30x10_correlated_routes_test_02",
+    "syn1_30x10_correlated_routes_test_03"
+  ],
+  "seed": 20260916,
+  "dataset_sha256": "0c11e39f7076b151c9b92f4bc4028bff2ff2a3c9ca65342a33bb7787267123b7",
+  "strata": {
+    "10x5/uniform": {
+      "train": [
+        "syn1_10x5_uniform_train_00",
+        "syn1_10x5_uniform_train_01",
+        "syn1_10x5_uniform_train_02",
+        "syn1_10x5_uniform_train_03"
+      ],
+      "val": [
+        "syn1_10x5_uniform_val_00",
+        "syn1_10x5_uniform_val_01",
+        "syn1_10x5_uniform_val_02",
+        "syn1_10x5_uniform_val_03"
+      ],
+      "test": [
+        "syn1_10x5_uniform_test_00",
+        "syn1_10x5_uniform_test_01",
+        "syn1_10x5_uniform_test_02",
+        "syn1_10x5_uniform_test_03"
+      ]
+    },
+    "10x5/bottleneck": {
+      "train": [
+        "syn1_10x5_bottleneck_train_00",
+        "syn1_10x5_bottleneck_train_01",
+        "syn1_10x5_bottleneck_train_02",
+        "syn1_10x5_bottleneck_train_03"
+      ],
+      "val": [
+        "syn1_10x5_bottleneck_val_00",
+        "syn1_10x5_bottleneck_val_01",
+        "syn1_10x5_bottleneck_val_02",
+        "syn1_10x5_bottleneck_val_03"
+      ],
+      "test": [
+        "syn1_10x5_bottleneck_test_00",
+        "syn1_10x5_bottleneck_test_01",
+        "syn1_10x5_bottleneck_test_02",
+        "syn1_10x5_bottleneck_test_03"
+      ]
+    },
+    "10x5/heterogeneous": {
+      "train": [
+        "syn1_10x5_heterogeneous_train_00",
+        "syn1_10x5_heterogeneous_train_01",
+        "syn1_10x5_heterogeneous_train_02",
+        "syn1_10x5_heterogeneous_train_03"
+      ],
+      "val": [
+        "syn1_10x5_heterogeneous_val_00",
+        "syn1_10x5_heterogeneous_val_01",
+        "syn1_10x5_heterogeneous_val_02",
+        "syn1_10x5_heterogeneous_val_03"
+      ],
+      "test": [
+        "syn1_10x5_heterogeneous_test_00",
+        "syn1_10x5_heterogeneous_test_01",
+        "syn1_10x5_heterogeneous_test_02",
+        "syn1_10x5_heterogeneous_test_03"
+      ]
+    },
+    "10x5/correlated_routes": {
+      "train": [
+        "syn1_10x5_correlated_routes_train_00",
+        "syn1_10x5_correlated_routes_train_01",
+        "syn1_10x5_correlated_routes_train_02",
+        "syn1_10x5_correlated_routes_train_03"
+      ],
+      "val": [
+        "syn1_10x5_correlated_routes_val_00",
+        "syn1_10x5_correlated_routes_val_01",
+        "syn1_10x5_correlated_routes_val_02",
+        "syn1_10x5_correlated_routes_val_03"
+      ],
+      "test": [
+        "syn1_10x5_correlated_routes_test_00",
+        "syn1_10x5_correlated_routes_test_01",
+        "syn1_10x5_correlated_routes_test_02",
+        "syn1_10x5_correlated_routes_test_03"
+      ]
+    },
+    "10x10/uniform": {
+      "train": [
+        "syn1_10x10_uniform_train_00",
+        "syn1_10x10_uniform_train_01",
+        "syn1_10x10_uniform_train_02",
+        "syn1_10x10_uniform_train_03"
+      ],
+      "val": [
+        "syn1_10x10_uniform_val_00",
+        "syn1_10x10_uniform_val_01",
+        "syn1_10x10_uniform_val_02",
+        "syn1_10x10_uniform_val_03"
+      ],
+      "test": [
+        "syn1_10x10_uniform_test_00",
+        "syn1_10x10_uniform_test_01",
+        "syn1_10x10_uniform_test_02",
+        "syn1_10x10_uniform_test_03"
+      ]
+    },
+    "10x10/bottleneck": {
+      "train": [
+        "syn1_10x10_bottleneck_train_00",
+        "syn1_10x10_bottleneck_train_01",
+        "syn1_10x10_bottleneck_train_02",
+        "syn1_10x10_bottleneck_train_03"
+      ],
+      "val": [
+        "syn1_10x10_bottleneck_val_00",
+        "syn1_10x10_bottleneck_val_01",
+        "syn1_10x10_bottleneck_val_02",
+        "syn1_10x10_bottleneck_val_03"
+      ],
+      "test": [
+        "syn1_10x10_bottleneck_test_00",
+        "syn1_10x10_bottleneck_test_01",
+        "syn1_10x10_bottleneck_test_02",
+        "syn1_10x10_bottleneck_test_03"
+      ]
+    },
+    "10x10/heterogeneous": {
+      "train": [
+        "syn1_10x10_heterogeneous_train_00",
+        "syn1_10x10_heterogeneous_train_01",
+        "syn1_10x10_heterogeneous_train_02",
+        "syn1_10x10_heterogeneous_train_03"
+      ],
+      "val": [
+        "syn1_10x10_heterogeneous_val_00",
+        "syn1_10x10_heterogeneous_val_01",
+        "syn1_10x10_heterogeneous_val_02",
+        "syn1_10x10_heterogeneous_val_03"
+      ],
+      "test": [
+        "syn1_10x10_heterogeneous_test_00",
+        "syn1_10x10_heterogeneous_test_01",
+        "syn1_10x10_heterogeneous_test_02",
+        "syn1_10x10_heterogeneous_test_03"
+      ]
+    },
+    "10x10/correlated_routes": {
+      "train": [
+        "syn1_10x10_correlated_routes_train_00",
+        "syn1_10x10_correlated_routes_train_01",
+        "syn1_10x10_correlated_routes_train_02",
+        "syn1_10x10_correlated_routes_train_03"
+      ],
+      "val": [
+        "syn1_10x10_correlated_routes_val_00",
+        "syn1_10x10_correlated_routes_val_01",
+        "syn1_10x10_correlated_routes_val_02",
+        "syn1_10x10_correlated_routes_val_03"
+      ],
+      "test": [
+        "syn1_10x10_correlated_routes_test_00",
+        "syn1_10x10_correlated_routes_test_01",
+        "syn1_10x10_correlated_routes_test_02",
+        "syn1_10x10_correlated_routes_test_03"
+      ]
+    },
+    "15x5/uniform": {
+      "train": [
+        "syn1_15x5_uniform_train_00",
+        "syn1_15x5_uniform_train_01",
+        "syn1_15x5_uniform_train_02",
+        "syn1_15x5_uniform_train_03"
+      ],
+      "val": [
+        "syn1_15x5_uniform_val_00",
+        "syn1_15x5_uniform_val_01",
+        "syn1_15x5_uniform_val_02",
+        "syn1_15x5_uniform_val_03"
+      ],
+      "test": [
+        "syn1_15x5_uniform_test_00",
+        "syn1_15x5_uniform_test_01",
+        "syn1_15x5_uniform_test_02",
+        "syn1_15x5_uniform_test_03"
+      ]
+    },
+    "15x5/bottleneck": {
+      "train": [
+        "syn1_15x5_bottleneck_train_00",
+        "syn1_15x5_bottleneck_train_01",
+        "syn1_15x5_bottleneck_train_02",
+        "syn1_15x5_bottleneck_train_03"
+      ],
+      "val": [
+        "syn1_15x5_bottleneck_val_00",
+        "syn1_15x5_bottleneck_val_01",
+        "syn1_15x5_bottleneck_val_02",
+        "syn1_15x5_bottleneck_val_03"
+      ],
+      "test": [
+        "syn1_15x5_bottleneck_test_00",
+        "syn1_15x5_bottleneck_test_01",
+        "syn1_15x5_bottleneck_test_02",
+        "syn1_15x5_bottleneck_test_03"
+      ]
+    },
+    "15x5/heterogeneous": {
+      "train": [
+        "syn1_15x5_heterogeneous_train_00",
+        "syn1_15x5_heterogeneous_train_01",
+        "syn1_15x5_heterogeneous_train_02",
+        "syn1_15x5_heterogeneous_train_03"
+      ],
+      "val": [
+        "syn1_15x5_heterogeneous_val_00",
+        "syn1_15x5_heterogeneous_val_01",
+        "syn1_15x5_heterogeneous_val_02",
+        "syn1_15x5_heterogeneous_val_03"
+      ],
+      "test": [
+        "syn1_15x5_heterogeneous_test_00",
+        "syn1_15x5_heterogeneous_test_01",
+        "syn1_15x5_heterogeneous_test_02",
+        "syn1_15x5_heterogeneous_test_03"
+      ]
+    },
+    "15x5/correlated_routes": {
+      "train": [
+        "syn1_15x5_correlated_routes_train_00",
+        "syn1_15x5_correlated_routes_train_01",
+        "syn1_15x5_correlated_routes_train_02",
+        "syn1_15x5_correlated_routes_train_03"
+      ],
+      "val": [
+        "syn1_15x5_correlated_routes_val_00",
+        "syn1_15x5_correlated_routes_val_01",
+        "syn1_15x5_correlated_routes_val_02",
+        "syn1_15x5_correlated_routes_val_03"
+      ],
+      "test": [
+        "syn1_15x5_correlated_routes_test_00",
+        "syn1_15x5_correlated_routes_test_01",
+        "syn1_15x5_correlated_routes_test_02",
+        "syn1_15x5_correlated_routes_test_03"
+      ]
+    },
+    "15x10/uniform": {
+      "train": [
+        "syn1_15x10_uniform_train_00",
+        "syn1_15x10_uniform_train_01",
+        "syn1_15x10_uniform_train_02",
+        "syn1_15x10_uniform_train_03"
+      ],
+      "val": [
+        "syn1_15x10_uniform_val_00",
+        "syn1_15x10_uniform_val_01",
+        "syn1_15x10_uniform_val_02",
+        "syn1_15x10_uniform_val_03"
+      ],
+      "test": [
+        "syn1_15x10_uniform_test_00",
+        "syn1_15x10_uniform_test_01",
+        "syn1_15x10_uniform_test_02",
+        "syn1_15x10_uniform_test_03"
+      ]
+    },
+    "15x10/bottleneck": {
+      "train": [
+        "syn1_15x10_bottleneck_train_00",
+        "syn1_15x10_bottleneck_train_01",
+        "syn1_15x10_bottleneck_train_02",
+        "syn1_15x10_bottleneck_train_03"
+      ],
+      "val": [
+        "syn1_15x10_bottleneck_val_00",
+        "syn1_15x10_bottleneck_val_01",
+        "syn1_15x10_bottleneck_val_02",
+        "syn1_15x10_bottleneck_val_03"
+      ],
+      "test": [
+        "syn1_15x10_bottleneck_test_00",
+        "syn1_15x10_bottleneck_test_01",
+        "syn1_15x10_bottleneck_test_02",
+        "syn1_15x10_bottleneck_test_03"
+      ]
+    },
+    "15x10/heterogeneous": {
+      "train": [
+        "syn1_15x10_heterogeneous_train_00",
+        "syn1_15x10_heterogeneous_train_01",
+        "syn1_15x10_heterogeneous_train_02",
+        "syn1_15x10_heterogeneous_train_03"
+      ],
+      "val": [
+        "syn1_15x10_heterogeneous_val_00",
+        "syn1_15x10_heterogeneous_val_01",
+        "syn1_15x10_heterogeneous_val_02",
+        "syn1_15x10_heterogeneous_val_03"
+      ],
+      "test": [
+        "syn1_15x10_heterogeneous_test_00",
+        "syn1_15x10_heterogeneous_test_01",
+        "syn1_15x10_heterogeneous_test_02",
+        "syn1_15x10_heterogeneous_test_03"
+      ]
+    },
+    "15x10/correlated_routes": {
+      "train": [
+        "syn1_15x10_correlated_routes_train_00",
+        "syn1_15x10_correlated_routes_train_01",
+        "syn1_15x10_correlated_routes_train_02",
+        "syn1_15x10_correlated_routes_train_03"
+      ],
+      "val": [
+        "syn1_15x10_correlated_routes_val_00",
+        "syn1_15x10_correlated_routes_val_01",
+        "syn1_15x10_correlated_routes_val_02",
+        "syn1_15x10_correlated_routes_val_03"
+      ],
+      "test": [
+        "syn1_15x10_correlated_routes_test_00",
+        "syn1_15x10_correlated_routes_test_01",
+        "syn1_15x10_correlated_routes_test_02",
+        "syn1_15x10_correlated_routes_test_03"
+      ]
+    },
+    "15x15/uniform": {
+      "train": [
+        "syn1_15x15_uniform_train_00",
+        "syn1_15x15_uniform_train_01",
+        "syn1_15x15_uniform_train_02",
+        "syn1_15x15_uniform_train_03"
+      ],
+      "val": [
+        "syn1_15x15_uniform_val_00",
+        "syn1_15x15_uniform_val_01",
+        "syn1_15x15_uniform_val_02",
+        "syn1_15x15_uniform_val_03"
+      ],
+      "test": [
+        "syn1_15x15_uniform_test_00",
+        "syn1_15x15_uniform_test_01",
+        "syn1_15x15_uniform_test_02",
+        "syn1_15x15_uniform_test_03"
+      ]
+    },
+    "15x15/bottleneck": {
+      "train": [
+        "syn1_15x15_bottleneck_train_00",
+        "syn1_15x15_bottleneck_train_01",
+        "syn1_15x15_bottleneck_train_02",
+        "syn1_15x15_bottleneck_train_03"
+      ],
+      "val": [
+        "syn1_15x15_bottleneck_val_00",
+        "syn1_15x15_bottleneck_val_01",
+        "syn1_15x15_bottleneck_val_02",
+        "syn1_15x15_bottleneck_val_03"
+      ],
+      "test": [
+        "syn1_15x15_bottleneck_test_00",
+        "syn1_15x15_bottleneck_test_01",
+        "syn1_15x15_bottleneck_test_02",
+        "syn1_15x15_bottleneck_test_03"
+      ]
+    },
+    "15x15/heterogeneous": {
+      "train": [
+        "syn1_15x15_heterogeneous_train_00",
+        "syn1_15x15_heterogeneous_train_01",
+        "syn1_15x15_heterogeneous_train_02",
+        "syn1_15x15_heterogeneous_train_03"
+      ],
+      "val": [
+        "syn1_15x15_heterogeneous_val_00",
+        "syn1_15x15_heterogeneous_val_01",
+        "syn1_15x15_heterogeneous_val_02",
+        "syn1_15x15_heterogeneous_val_03"
+      ],
+      "test": [
+        "syn1_15x15_heterogeneous_test_00",
+        "syn1_15x15_heterogeneous_test_01",
+        "syn1_15x15_heterogeneous_test_02",
+        "syn1_15x15_heterogeneous_test_03"
+      ]
+    },
+    "15x15/correlated_routes": {
+      "train": [
+        "syn1_15x15_correlated_routes_train_00",
+        "syn1_15x15_correlated_routes_train_01",
+        "syn1_15x15_correlated_routes_train_02",
+        "syn1_15x15_correlated_routes_train_03"
+      ],
+      "val": [
+        "syn1_15x15_correlated_routes_val_00",
+        "syn1_15x15_correlated_routes_val_01",
+        "syn1_15x15_correlated_routes_val_02",
+        "syn1_15x15_correlated_routes_val_03"
+      ],
+      "test": [
+        "syn1_15x15_correlated_routes_test_00",
+        "syn1_15x15_correlated_routes_test_01",
+        "syn1_15x15_correlated_routes_test_02",
+        "syn1_15x15_correlated_routes_test_03"
+      ]
+    },
+    "20x5/uniform": {
+      "train": [
+        "syn1_20x5_uniform_train_00",
+        "syn1_20x5_uniform_train_01",
+        "syn1_20x5_uniform_train_02",
+        "syn1_20x5_uniform_train_03"
+      ],
+      "val": [
+        "syn1_20x5_uniform_val_00",
+        "syn1_20x5_uniform_val_01",
+        "syn1_20x5_uniform_val_02",
+        "syn1_20x5_uniform_val_03"
+      ],
+      "test": [
+        "syn1_20x5_uniform_test_00",
+        "syn1_20x5_uniform_test_01",
+        "syn1_20x5_uniform_test_02",
+        "syn1_20x5_uniform_test_03"
+      ]
+    },
+    "20x5/bottleneck": {
+      "train": [
+        "syn1_20x5_bottleneck_train_00",
+        "syn1_20x5_bottleneck_train_01",
+        "syn1_20x5_bottleneck_train_02",
+        "syn1_20x5_bottleneck_train_03"
+      ],
+      "val": [
+        "syn1_20x5_bottleneck_val_00",
+        "syn1_20x5_bottleneck_val_01",
+        "syn1_20x5_bottleneck_val_02",
+        "syn1_20x5_bottleneck_val_03"
+      ],
+      "test": [
+        "syn1_20x5_bottleneck_test_00",
+        "syn1_20x5_bottleneck_test_01",
+        "syn1_20x5_bottleneck_test_02",
+        "syn1_20x5_bottleneck_test_03"
+      ]
+    },
+    "20x5/heterogeneous": {
+      "train": [
+        "syn1_20x5_heterogeneous_train_00",
+        "syn1_20x5_heterogeneous_train_01",
+        "syn1_20x5_heterogeneous_train_02",
+        "syn1_20x5_heterogeneous_train_03"
+      ],
+      "val": [
+        "syn1_20x5_heterogeneous_val_00",
+        "syn1_20x5_heterogeneous_val_01",
+        "syn1_20x5_heterogeneous_val_02",
+        "syn1_20x5_heterogeneous_val_03"
+      ],
+      "test": [
+        "syn1_20x5_heterogeneous_test_00",
+        "syn1_20x5_heterogeneous_test_01",
+        "syn1_20x5_heterogeneous_test_02",
+        "syn1_20x5_heterogeneous_test_03"
+      ]
+    },
+    "20x5/correlated_routes": {
+      "train": [
+        "syn1_20x5_correlated_routes_train_00",
+        "syn1_20x5_correlated_routes_train_01",
+        "syn1_20x5_correlated_routes_train_02",
+        "syn1_20x5_correlated_routes_train_03"
+      ],
+      "val": [
+        "syn1_20x5_correlated_routes_val_00",
+        "syn1_20x5_correlated_routes_val_01",
+        "syn1_20x5_correlated_routes_val_02",
+        "syn1_20x5_correlated_routes_val_03"
+      ],
+      "test": [
+        "syn1_20x5_correlated_routes_test_00",
+        "syn1_20x5_correlated_routes_test_01",
+        "syn1_20x5_correlated_routes_test_02",
+        "syn1_20x5_correlated_routes_test_03"
+      ]
+    },
+    "20x10/uniform": {
+      "train": [
+        "syn1_20x10_uniform_train_00",
+        "syn1_20x10_uniform_train_01",
+        "syn1_20x10_uniform_train_02",
+        "syn1_20x10_uniform_train_03"
+      ],
+      "val": [
+        "syn1_20x10_uniform_val_00",
+        "syn1_20x10_uniform_val_01",
+        "syn1_20x10_uniform_val_02",
+        "syn1_20x10_uniform_val_03"
+      ],
+      "test": [
+        "syn1_20x10_uniform_test_00",
+        "syn1_20x10_uniform_test_01",
+        "syn1_20x10_uniform_test_02",
+        "syn1_20x10_uniform_test_03"
+      ]
+    },
+    "20x10/bottleneck": {
+      "train": [
+        "syn1_20x10_bottleneck_train_00",
+        "syn1_20x10_bottleneck_train_01",
+        "syn1_20x10_bottleneck_train_02",
+        "syn1_20x10_bottleneck_train_03"
+      ],
+      "val": [
+        "syn1_20x10_bottleneck_val_00",
+        "syn1_20x10_bottleneck_val_01",
+        "syn1_20x10_bottleneck_val_02",
+        "syn1_20x10_bottleneck_val_03"
+      ],
+      "test": [
+        "syn1_20x10_bottleneck_test_00",
+        "syn1_20x10_bottleneck_test_01",
+        "syn1_20x10_bottleneck_test_02",
+        "syn1_20x10_bottleneck_test_03"
+      ]
+    },
+    "20x10/heterogeneous": {
+      "train": [
+        "syn1_20x10_heterogeneous_train_00",
+        "syn1_20x10_heterogeneous_train_01",
+        "syn1_20x10_heterogeneous_train_02",
+        "syn1_20x10_heterogeneous_train_03"
+      ],
+      "val": [
+        "syn1_20x10_heterogeneous_val_00",
+        "syn1_20x10_heterogeneous_val_01",
+        "syn1_20x10_heterogeneous_val_02",
+        "syn1_20x10_heterogeneous_val_03"
+      ],
+      "test": [
+        "syn1_20x10_heterogeneous_test_00",
+        "syn1_20x10_heterogeneous_test_01",
+        "syn1_20x10_heterogeneous_test_02",
+        "syn1_20x10_heterogeneous_test_03"
+      ]
+    },
+    "20x10/correlated_routes": {
+      "train": [
+        "syn1_20x10_correlated_routes_train_00",
+        "syn1_20x10_correlated_routes_train_01",
+        "syn1_20x10_correlated_routes_train_02",
+        "syn1_20x10_correlated_routes_train_03"
+      ],
+      "val": [
+        "syn1_20x10_correlated_routes_val_00",
+        "syn1_20x10_correlated_routes_val_01",
+        "syn1_20x10_correlated_routes_val_02",
+        "syn1_20x10_correlated_routes_val_03"
+      ],
+      "test": [
+        "syn1_20x10_correlated_routes_test_00",
+        "syn1_20x10_correlated_routes_test_01",
+        "syn1_20x10_correlated_routes_test_02",
+        "syn1_20x10_correlated_routes_test_03"
+      ]
+    },
+    "30x10/uniform": {
+      "train": [
+        "syn1_30x10_uniform_train_00",
+        "syn1_30x10_uniform_train_01",
+        "syn1_30x10_uniform_train_02",
+        "syn1_30x10_uniform_train_03"
+      ],
+      "val": [
+        "syn1_30x10_uniform_val_00",
+        "syn1_30x10_uniform_val_01",
+        "syn1_30x10_uniform_val_02",
+        "syn1_30x10_uniform_val_03"
+      ],
+      "test": [
+        "syn1_30x10_uniform_test_00",
+        "syn1_30x10_uniform_test_01",
+        "syn1_30x10_uniform_test_02",
+        "syn1_30x10_uniform_test_03"
+      ]
+    },
+    "30x10/bottleneck": {
+      "train": [
+        "syn1_30x10_bottleneck_train_00",
+        "syn1_30x10_bottleneck_train_01",
+        "syn1_30x10_bottleneck_train_02",
+        "syn1_30x10_bottleneck_train_03"
+      ],
+      "val": [
+        "syn1_30x10_bottleneck_val_00",
+        "syn1_30x10_bottleneck_val_01",
+        "syn1_30x10_bottleneck_val_02",
+        "syn1_30x10_bottleneck_val_03"
+      ],
+      "test": [
+        "syn1_30x10_bottleneck_test_00",
+        "syn1_30x10_bottleneck_test_01",
+        "syn1_30x10_bottleneck_test_02",
+        "syn1_30x10_bottleneck_test_03"
+      ]
+    },
+    "30x10/heterogeneous": {
+      "train": [
+        "syn1_30x10_heterogeneous_train_00",
+        "syn1_30x10_heterogeneous_train_01",
+        "syn1_30x10_heterogeneous_train_02",
+        "syn1_30x10_heterogeneous_train_03"
+      ],
+      "val": [
+        "syn1_30x10_heterogeneous_val_00",
+        "syn1_30x10_heterogeneous_val_01",
+        "syn1_30x10_heterogeneous_val_02",
+        "syn1_30x10_heterogeneous_val_03"
+      ],
+      "test": [
+        "syn1_30x10_heterogeneous_test_00",
+        "syn1_30x10_heterogeneous_test_01",
+        "syn1_30x10_heterogeneous_test_02",
+        "syn1_30x10_heterogeneous_test_03"
+      ]
+    },
+    "30x10/correlated_routes": {
+      "train": [
+        "syn1_30x10_correlated_routes_train_00",
+        "syn1_30x10_correlated_routes_train_01",
+        "syn1_30x10_correlated_routes_train_02",
+        "syn1_30x10_correlated_routes_train_03"
+      ],
+      "val": [
+        "syn1_30x10_correlated_routes_val_00",
+        "syn1_30x10_correlated_routes_val_01",
+        "syn1_30x10_correlated_routes_val_02",
+        "syn1_30x10_correlated_routes_val_03"
+      ],
+      "test": [
+        "syn1_30x10_correlated_routes_test_00",
+        "syn1_30x10_correlated_routes_test_01",
+        "syn1_30x10_correlated_routes_test_02",
+        "syn1_30x10_correlated_routes_test_03"
+      ]
+    }
+  }
+}

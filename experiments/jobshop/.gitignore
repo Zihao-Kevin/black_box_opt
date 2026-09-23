@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv*/
+cache/
+vendor/
+runs/
+wandb/
+*.pt
+.env*
+.netrc

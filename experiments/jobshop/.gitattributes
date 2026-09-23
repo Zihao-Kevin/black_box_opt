@@ -1,0 +1,5 @@
+*.svg -whitespace
+*.csv -whitespace
+results/provenance/source-snapshot/** -whitespace
+scripts/historical/** -whitespace
+jobshop_rl/row_math.py -whitespace

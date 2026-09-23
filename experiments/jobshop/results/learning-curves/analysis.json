@@ -1,0 +1,7 @@
+{
+  "mean_reward_advantage_epochs_1_32": 0.00016753702502425583,
+  "positive_epochs": 19,
+  "final_epoch_reward_difference": 0.0005717835383329817,
+  "final_epoch_gap_reduction_fraction": 0.0025145437420623544,
+  "final_epoch_log_difference": 0.001093427784543067
+}
