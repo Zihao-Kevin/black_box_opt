@@ -18,7 +18,11 @@
 *.tex
 *_free_runs*
 *_qp_rowwise_runs*
-
+*_qp_adam_runs*/
+*_qp_offline_runs*/
+*_sgd_long*/
+*.npz*
+*.bib*
 # macOS / Python
 .DS_Store
 __pycache__/

@@ -320,8 +320,8 @@ if __name__ == "__main__":
 
 
 # ---------------------------------------------------------------------- figures for the story notebook
-_COL = {"plain": "#2a78d6", "+ Q": "#eb6834", "+ Q + Δ": "#1baf7a"}          # categorical slots 1-3, fixed
-_MORE = ["#9a8fbf", "#c9a227", "#7f9ca8", "#b57c8c", "#6e8b5e"]                 # muted slots for any other series (the baselines)
+_COL = {"plain": "#2a78d6", "+ Q": "#eb6834", "+ Q + Δ": "#1baf7a", "+ Q + row-wise Δ": "#eda100"}   # categorical slots 1-4, fixed
+_MORE = ["#9a8fbf", "#7f9ca8", "#b57c8c", "#6e8b5e", "#a08268"]                 # muted slots for any other series (the baselines)
 _INK, _MUTED, _GRID, _REF = "#0b0b0b", "#52514e", "#e4e3df", "#8a8984"
 
 
@@ -334,13 +334,14 @@ def _clean(ax):
 
 
 def plot_shares(rows, ax=None):
-    """rows = {model name: (Q share, Q+Delta share)} of the plain estimator's gradient noise."""
+    """rows = {model name: (Q share, Q+Delta share[, Q+row-wise Delta share])} of the plain estimator's gradient noise."""
     import matplotlib.pyplot as plt
-    ax = ax or plt.subplots(figsize=(7.2, 0.6 + 1.35 * len(rows)))[1]
+    nbar = 1 + max(len(v) for v in rows.values())
+    ax = ax or plt.subplots(figsize=(7.2, 0.6 + 0.45 * nbar * len(rows)))[1]
     names = list(_COL); y = 0; ticks, labels = [], []
-    for model, (q, qd) in rows.items():
+    for model, vals in rows.items():
         ax.text(0, y, model, ha="left", va="center", fontsize=10, color=_INK, fontweight="bold")
-        for name, val in zip(names, (1.0, q, qd)):
+        for name, val in zip(names, (1.0, *vals)):
             y -= 1
             ax.barh(y, 100 * val, height=0.62, color=_COL[name], edgecolor="white", linewidth=1)
             ax.text(100 * val + 1.2, y, f"{100 * val:.0f}%" if val > 0.05 else f"{100 * val:.1f}%",
@@ -357,7 +358,7 @@ def plot_shares(rows, ax=None):
     return ax
 
 
-def plot_curves(calls, out, ref="exact gradient", ax=None):
+def plot_curves(calls, out, ref="exact gradient", ax=None, title="Regret while training"):
     """out = {series name: array (seeds, points)}; the series named `ref` is drawn as a gray reference."""
     import matplotlib.pyplot as plt
     ax = ax or plt.subplots(figsize=(7.2, 3.6))[1]
@@ -386,5 +387,5 @@ def plot_curves(calls, out, ref="exact gradient", ax=None):
     ax.set_ylabel("regret  (0 = best possible portfolio)", color=_MUTED, fontsize=9.5)
     ax.set_xlim(0, calls[-1] * 1.22)
     ax.legend(frameon=False, fontsize=9, labelcolor=_INK, loc="lower left")
-    ax.set_title(f"Regret while training, mean of {len(arr)} runs (band = spread)", loc="left", fontsize=10.5, color=_INK, pad=10)
+    ax.set_title(f"{title}, mean of {len(arr)} runs (band = spread)", loc="left", fontsize=10.5, color=_INK, pad=10)
     return ax

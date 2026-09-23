@@ -17,7 +17,7 @@ The estimator subtracts sum_beta He_beta(eps) Pi_j*(beta) R_beta from the Q esti
 built from the exact per-instance Q (like the notebook's "+ Q" and "+ Q + Δ", which are ceilings too).
 """
 import numpy as np, torch
-from qp_continuous_ar import Account
+from qp_continuous_ar import Account, _make
 from qp_continuous import dev, DT
 
 
@@ -35,13 +35,11 @@ def row_groups(net):
     return np.concatenate(ids)
 
 
-def projector(J, groups):
-    """Pi (P, P) onto the span of {J restricted to group r}: blockdiag of rank-1 projections (zero where J's slice is 0)."""
-    P = np.zeros((len(J), len(J)))
-    for r in np.unique(groups):
-        idx = np.flatnonzero(groups == r); v = J[idx]; n2 = v @ v
-        if n2 > 1e-24: P[np.ix_(idx, idx)] = np.outer(v, v) / n2
-    return P
+def project(J, groups, R):
+    """Pi R for R (..., P): in every group r the component of R along J's slice, (R_r . J_r / |J_r|^2) J_r (0 where J_r = 0)."""
+    n = groups.max() + 1; R2 = R.reshape(-1, len(J))
+    num = np.stack([np.bincount(groups, weights=x * J, minlength=n) for x in R2]); den = np.bincount(groups, weights=J * J, minlength=n)
+    return ((num / np.maximum(den, 1e-24) * (den > 1e-24))[:, groups] * J).reshape(R.shape)
 
 
 class RowAccount(Account):
@@ -52,14 +50,13 @@ class RowAccount(Account):
         self.groups = {"scalar": np.zeros(self.Jn.shape[1], int), "row": row_groups(net), "param": np.arange(self.Jn.shape[1])}
         self._proj = {}
 
-    def proj(self, kind, j):
-        if (kind, j) not in self._proj: self._proj[kind, j] = projector(self.Jn[j], self.groups[kind])
-        return self._proj[kind, j]
+    def proj(self, kind, j, R):
+        return project(self.Jn[j], self.groups[kind], R)
 
     def var_grouped(self, kind, family="prefix"):
         tot = 0.0
         for b, (w, R) in self.hermite(family).items():
-            js = max(i for i, n in enumerate(b) if n > 0); r = R - self.proj(kind, js) @ R
+            r = R - self.proj(kind, max(i for i, n in enumerate(b) if n > 0), R)
             tot += w * r @ r
         return tot
 
@@ -81,7 +78,7 @@ class RowAccount(Account):
         """(n_beta, P): Pi_j*(beta) R_beta for every Hermite term, in hermite() order."""
         key = ("PR", kind)
         if key not in self._proj:
-            self._proj[key] = np.stack([self.proj(kind, max(i for i, n in enumerate(b) if n > 0)) @ R for b, (w, R) in self.hermite("prefix").items()])
+            self._proj[key] = np.stack([self.proj(kind, max(i for i, n in enumerate(b) if n > 0), R) for b, (w, R) in self.hermite("prefix").items()])
         return self._proj[key]
 
     def hermite_values(self, e):
@@ -93,3 +90,13 @@ class RowAccount(Account):
                 if n: h = h * He[n][:, i]
             cols.append(h)
         return np.stack(cols, 1)
+
+
+def shares(cqp, cfg, seeds=(0, 1, 2)):
+    """(Q, Q + Delta*, Q + row-wise Delta*) as fractions of REINFORCE-b's gradient variance, at the untrained predictor."""
+    out = np.zeros(3)
+    for s in seeds:
+        acc = [RowAccount(cqp, _make(cfg, cqp, s), i) for i in range(cqp.o.n_train)]
+        vrf = sum(a.var("rf") for a in acc)
+        out += np.array([sum(a.var("prefix") for a in acc), sum(a.var_delta("prefix", "pre")[0] for a in acc), sum(a.var_grouped("row") for a in acc)]) / vrf / len(seeds)
+    return tuple(out)

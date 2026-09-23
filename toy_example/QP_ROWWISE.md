@@ -3,6 +3,7 @@
 Setting: `DFL_QP_Black_Box_new.ipynb` unchanged (12 assets, 6 days, Gaussian nudges σ = 0.15, prefix Q, Adam lr 0.01, 1600 calls).
 "+ Q", "+ Q + Δ" and "+ Q + row-wise Δ" all use the exact per-instance Q and Δ* (ceilings, as in the notebook).
 Figure: `_qp_rowwise_training.png`. Runs and scripts: `_qp_rowwise_runs/` (`train.py`, `setup.py`, `plot.py`, 200 runs).
+The notebook now has the same comparison with 10 seeds (row-wise Δ bar, shared and private training cells); seeds 0-9 there reproduce these runs exactly.
 
 **Row-wise Δ here.** One scalar per (asset j, weight row r) instead of one per asset: the row-r slice of ∇μ_j is
 (backprop) × (row input), so Δ can remove, row by row, the component of the noise along J_j's slice. Rows: every output unit of
