@@ -16,6 +16,35 @@ Adam learning rate is 1e-5. All methods receive the exact dispatch-marginal entr
 
 **Comparison limits:** GRPO retains sequence-length normalization, group-standardized rewards and reference KL coefficient 0.01, while the other methods do not share those extra transformations. Thus these are matched sampling budgets, not identical objective scales. Q-based methods have an offline-label cost that baselines may not use. Logged gradient norms are **not** gradient variances. Standard deviations are across training seeds on the fixed evaluation set, not uncertainty over new datasets. The test set was also used in earlier development comparisons; this is not a newly acquired independent benchmark.
 
+## Reward placement and estimator headroom
+
+The dispatch rule alone settles about 98% of the reward (balanced ANOVA on the fitted tables:
+dispatch 92.8%, tie_break 0.5%, postprocess/radius 2.2%, interactions 4.5%), and in
+`configs/synthetic-val128-v1.json` `dispatch` is the first JSON key, so the collapsed token
+tree resolves it in the single root branch. Episodes still contain 5.57 decisions on average,
+but levels at depth 1 and below carry only 3-6% of the advantage variance. A Q control variate
+built on an accurate table therefore leaves almost nothing for any residual to correct, which
+is why `qcv` and `row_delta` are indistinguishable in [RESULTS.md](RESULTS.md) while both beat
+every baseline.
+
+`configs/synthetic-val128-v2-reward-last.json` emits the same 1500 plans with `dispatch` last.
+The field order is a planner setting (`planner.field_order`), and `make_grammar` keeps the
+enumeration independent of it, so plan *i* is the same plan under either order and the offline
+pool and reward tables in `artifacts/offline-q/` stay valid. The prompt in that config states
+the new key order. **A reorder changes every token prefix, so the feature cache must be rebuilt**
+(`row_prepare_sharded` against the v2 config, into a separate cache directory); the identity
+hash refuses a stale cache rather than mixing them.
+
+Before spending a campaign, read the headroom the run itself reports. Every `headroom_every`
+updates (default 64, one per epoch; set to 0 to disable) the Q-family diagnostics carry
+`q_residual_share` — the share of the no-baseline REINFORCE variance that survives Q — and
+`row_delta_share` — the share of that remainder a row-wise residual removes. Both come from the
+same exact algebra the estimators use (`TreeMath.noise` and `TreeMath.rowwise`). Under the v1
+order `q_residual_share` is about 0.002: Q is already nearly the exact gradient, so no number of
+seeds can separate `qcv` from `row_delta`. `optimizer` (`adam`, default, or `sgd`) and
+`entropy_beta` (default 0.1) are also configuration now; the v1 defaults reproduce the published
+campaign exactly.
+
 ## Installation and data
 
 Use Linux, Python 3.12, CUDA-capable PyTorch and Docker. The original run used H100 GPUs. Run commands **from this directory**. The dependency freeze and historical source snapshots are retained with the results.

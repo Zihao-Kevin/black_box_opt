@@ -1,0 +1,19 @@
+{
+  "protocol": "per-update gradient variance at the initial policy, under the TRUE reward, 2 episodes averaged exactly as the trainer forms an update; baselines for Q / V / row-wise Delta come from the fitted table at each label budget; 16 train instances x 1200 batches (scratchpad diag_update.py)",
+  "true_gradient_sq": 0.0451169,
+  "plans_per_instance": 625,
+  "by_labels": {
+    "64":  {"otb": 0.000999866, "row_delta": 0.114041,  "qcv": 0.117973,  "vbase": 0.143982,  "rloo": 0.281234, "reinforce": 14.1029, "holdout_r2": 0.27},
+    "200": {"otb": 0.000999867, "row_delta": 0.0554608, "qcv": 0.0764002, "vbase": 0.112672,  "rloo": 0.281234, "reinforce": 14.1029, "holdout_r2": 0.622},
+    "400": {"otb": 0.000999867, "row_delta": 0.0297544, "qcv": 0.0624324, "vbase": 0.0940577, "rloo": 0.281234, "reinforce": 14.1029, "holdout_r2": 0.675},
+    "625": {"otb": 0.000999867, "row_delta": 0.00429741,"qcv": 0.0514463, "vbase": 0.0949771, "rloo": 0.281234, "reinforce": 14.1029, "holdout_r2": 1.0}
+  },
+  "bias": {
+    "protocol": "E[g_hat].g/|g|^2 and |E[g_hat]-g|^2/|g|^2 at the initial policy, 3 instances x 8000 batches (scratchpad diag_bias.py); the 1e-4-level values are float32 accumulation, not real bias",
+    "qcv": {"projection": 0.9952, "bias_sq": 0.00014},
+    "row_delta": {"projection": 0.9935, "bias_sq": 0.00008},
+    "rloo": {"projection": 0.9707, "bias_sq": 0.00052},
+    "reinforce": {"projection": 0.9942, "bias_sq": 0.0},
+    "otb": {"projection": 0.3464, "bias_sq": 0.42842}
+  }
+}

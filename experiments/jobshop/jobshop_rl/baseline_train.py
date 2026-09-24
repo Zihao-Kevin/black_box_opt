@@ -22,11 +22,22 @@ def load_tree(cache,name,grammar,common):
     if features['identity']!=common['identity']:raise RuntimeError('Feature identity mismatch')
     return RowTree(grammar,features,common)
 
-def step_gradient(W,st,A,B,method,table,episodes,rewards,reference=None,beta=.01):
+def step_gradient(W,st,A,B,method,table,episodes,rewards,reference=None,beta=.01,diagnose=False):
     zero=lambda:(torch.zeros_like(A),torch.zeros_like(B))
     result=list(zero());diagnostic={}
-    f=W.rewards_to_entries(table);Q,_=W.values(st,f)
+    f=W.rewards_to_entries(table);Q,V=W.values(st,f)
     c=Q
+    if method=='vbase':c=V[W.ent_node]                                    # state-value baseline: sum_path (f - V_node) s_e, since sum_v P_v s_v = 0
+    if diagnose and method in ('qcv','row_delta','scalar_delta'):
+        # Exact noise budget of this update, from the same algebra the estimators use: what
+        # REINFORCE and Q leave behind, and how much of Q's residual a row-wise residual can
+        # still cancel.  q_residual_share near zero means the reward is settled before the
+        # branches Delta corrects, and no number of seeds will separate Q from Q+Delta.
+        (var_reinforce,var_q),grad_sq=W.noise(st,f,[torch.zeros_like(f),Q])
+        residual,row_gain=W.rowwise(st,f)
+        diagnostic.update(true_gradient_sq=grad_sq,var_reinforce=var_reinforce,var_q=var_q,
+                          q_residual_share=var_q/var_reinforce if var_reinforce>0 else 0.,
+                          row_delta_share=row_gain/residual if residual>0 else 0.)
     if method=='scalar_delta':
         Q,D,gain=W.delta(st,f);c=Q+D;diagnostic['fitted_delta_gain']=gain
     if method=='grpo':
@@ -44,7 +55,7 @@ def step_gradient(W,st,A,B,method,table,episodes,rewards,reference=None,beta=.01
             pair=W.episode_grad(st,c,reward,path)
             if method=='row_delta':
                 correction=W.row_correction(st,f,path);pair=tuple(x-y for x,y in zip(pair,correction))
-            elif method not in ('qcv','scalar_delta'):raise ValueError(method)
+            elif method not in ('qcv','scalar_delta','vbase'):raise ValueError(method)
         for total,value in zip(result,pair):total.add_(value/len(episodes))
     return result,diagnostic
 
@@ -93,7 +104,8 @@ def run(cfg,cache,out,method,stop_after=0,train_only=False,frozen_tables_path=No
     out=Path(out);out.mkdir(parents=True,exist_ok=True);cache=Path(cache)
     torch.backends.cuda.matmul.allow_tf32=False
     data,split,_=experiment_data(cfg);grammar=json.loads((cache/'grammar.json').read_text());common=torch.load(cache/'common.pt',weights_only=False,map_location='cpu')
-    if json.loads((cache/'identity.json').read_text())['config']!=cfg:raise RuntimeError('Cache config mismatch')
+    from .kings_val128_train import cache_relevant
+    if cache_relevant(json.loads((cache/'identity.json').read_text())['config'])!=cache_relevant(cfg):raise RuntimeError('Cache config mismatch')
     A=common['A0'].cuda().clone().requires_grad_();B=common['B0'].cuda().clone().requires_grad_()
     optimizer=torch.optim.Adam([A,B],lr=cfg['learning_rate']);rng=np.random.default_rng(cfg['seed']);extra=BaselineAdapter(grammar)
     sums={n:np.zeros(len(grammar['plans'])) for n in split['train']};counts={n:np.zeros(len(grammar['plans']),dtype=np.int64) for n in split['train']}

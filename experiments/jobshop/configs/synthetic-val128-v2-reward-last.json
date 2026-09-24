@@ -1,0 +1,62 @@
+{
+  "method": "grpo",
+  "seed": 0,
+  "candidate_budget": 4096,
+  "split": "datasets/synthetic-val128-v1/split.json",
+  "baseline": null,
+  "image": "python@sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+  "timeout": 10,
+  "planner": {
+    "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "revision": "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+    "init_seed": 42,
+    "max_tokens": 256,
+    "lora_rank": 8,
+    "mode": "direct_code",
+    "output_mode": "policy_plan",
+    "precision": "float32",
+    "max_alignment_error": 0.001,
+    "system_prompt": "Choose a job-shop scheduling algorithm to minimize makespan. Return ONLY a short JSON object with exactly these four JSON keys, in exactly this order:\ntie_break: one tie breaker name; postprocess: one postprocess name; search_radius: an integer; dispatch: one dispatch name. Use these four JSON keys exactly, in this order.\nDispatch rules:\nest_spt: earliest start, then shortest processing time\nspt: shortest processing time\nlpt: longest processing time\nmwr: most remaining job work\nremaining_work: least remaining job work\nremaining_ops: fewest remaining job operations\nmachine_ready: earliest machine availability\njob_ready: earliest job availability\nmachine_load: largest remaining machine workload\nleast_machine_load: smallest remaining machine workload\nshortest_next: shortest next operation duration (zero at job end)\nfifo: lowest next operation index\nratio: smallest (earliest start + 1)/(remaining job work + 1)\ncompletion: earliest operation completion\nlookahead: earliest projected completion through this and next 2 job operations using current machine availability\nTie breakers (used after dispatch score):\njob_id: lowest job index\nduration: shortest duration\nremaining_ops: fewest remaining operations\nremaining_work: least remaining job work\nmachine_id: lowest machine index\nmachine_time: earliest machine availability\nmachine_load: least remaining machine load\nest: earliest start\nprecedence_gap: least wait after job predecessor\nrandom_tiebreak: fixed reproducible integer hash of job and operation\nFinal ties use job index. A deterministic constructor schedules every job operation in precedence order.\npostprocess: none, local_sort, local_insert, local_swap.\nnone requires search_radius=0. Other modes require search_radius 2, 4 or 8.\nSearch edits the existing job sequence, then fully decodes a feasible schedule; only strictly lower makespan is accepted.\nlocal_insert moves one job occurrence by up to radius positions; local_swap exchanges two within radius; local_sort sorts a window of radius+1 occurrences by their operation durations.\nAll searches examine at most 64 neighbors, one deterministic pass. Radius is distance/window size, not extra evaluations. No extra keys, explanations, Python, or Markdown.\nThe JSON fields have separate allowed values. Do not move a dispatch name into tie_break. Copy each name exactly. Final field constraints:\n{\"tie_break\": [\"job_id\", \"duration\", \"remaining_ops\", \"remaining_work\", \"machine_id\", \"machine_time\", \"machine_load\", \"est\", \"precedence_gap\", \"random_tiebreak\"], \"postprocess\": [\"none\", \"local_sort\", \"local_insert\", \"local_swap\"], \"search_radius\": [0, 2, 4, 8], \"dispatch\": [\"est_spt\", \"spt\", \"lpt\", \"mwr\", \"remaining_work\", \"remaining_ops\", \"machine_ready\", \"job_ready\", \"machine_load\", \"least_machine_load\", \"shortest_next\", \"fifo\", \"ratio\", \"completion\", \"lookahead\"]}\nFor none use radius 0; otherwise radius 2, 4 or 8. Return one value per field, never arrays. Check all four values against their own allowed set before answering.\nThe decoder enforces canonical JSON syntax and samples only allowed branches; all 1500 legal configurations remain available.",
+    "rollout_microbatch": 2,
+    "max_prompt_tokens": 8192,
+    "field_order": [
+      "tie_break",
+      "postprocess",
+      "search_radius",
+      "dispatch"
+    ]
+  },
+  "q_rank": 16,
+  "q_steps": 2,
+  "vocab_chunk": 4096,
+  "replay_capacity": 64,
+  "lr": 1e-05,
+  "reward_threshold": 0.9,
+  "mode": "direct_code",
+  "action_version": 2,
+  "experiment": "synthetic-row-v2-reward-last",
+  "input_mode": "full_instance",
+  "sampling_schedule": "grouped",
+  "epochs": 4,
+  "grpo": {
+    "clip": 0.2,
+    "beta": 0.01,
+    "advantage_eps": 0.0001,
+    "inner_updates": 1
+  },
+  "dataset": "datasets/synthetic-val128-v1/instances.json",
+  "score_mode": "synthetic_lb",
+  "group_size": 8,
+  "instances_per_batch": 2,
+  "upstream_commit": "33ffc0ab4d82c86e84dac722f5c71662d8a06dfe",
+  "methods": [
+    "grpo",
+    "qcv",
+    "scalar_delta",
+    "row_delta"
+  ],
+  "cache_microbatch": 4,
+  "reward_table_prior_count": 1,
+  "reward_table_prior_value": 0,
+  "learning_rate": 1e-05
+}

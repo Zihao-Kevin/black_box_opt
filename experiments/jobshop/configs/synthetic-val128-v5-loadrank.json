@@ -1,0 +1,77 @@
+{
+  "method": "grpo",
+  "seed": 0,
+  "candidate_budget": 4096,
+  "split": "datasets/synthetic-val128-v1/split.json",
+  "baseline": null,
+  "image": "python@sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+  "timeout": 10,
+  "planner": {
+    "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "revision": "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+    "init_seed": 42,
+    "max_tokens": 256,
+    "lora_rank": 8,
+    "mode": "direct_code",
+    "output_mode": "policy_plan",
+    "precision": "float32",
+    "max_alignment_error": 0.001,
+    "system_prompt": "Choose job-shop dispatch rules to minimize makespan. Rank the machines by total processing load and split them into four groups of consecutive ranks: the busiest quarter, the second busiest, the third, and the quietest quarter. Each group uses its own dispatch rule; every operation is scored by the rule of the machine it runs on, and a deterministic constructor schedules every operation in precedence order, always taking the ready operation with the best score (ties by job index).\nReturn ONLY a JSON object with exactly these four keys, each holding the rule name for that group of machines:\n{\"busiest_machines\":\"est_spt\",\"second_busiest_machines\":\"est_spt\",\"third_busiest_machines\":\"est_spt\",\"quietest_machines\":\"est_spt\"}\nAllowed rule names (use each name exactly):\nest_spt: earliest start, then shortest processing time\njob_ready: earliest job availability\nratio: smallest (earliest start + 1)/(remaining job work + 1)\nfifo: lowest next operation index\ncompletion: earliest operation completion\nPick the rule for each group independently. No extra keys, explanations, Python, or Markdown.",
+    "rollout_microbatch": 2,
+    "max_prompt_tokens": 8192,
+    "field_order": [
+      "tie_break",
+      "postprocess",
+      "search_radius",
+      "dispatch"
+    ],
+    "dispatch_groups": 4,
+    "dispatch_menu": [
+      "est_spt",
+      "job_ready",
+      "ratio",
+      "fifo",
+      "completion"
+    ],
+    "dispatch_keyed": [
+      "busiest_machines",
+      "second_busiest_machines",
+      "third_busiest_machines",
+      "quietest_machines"
+    ]
+  },
+  "q_rank": 16,
+  "q_steps": 2,
+  "vocab_chunk": 4096,
+  "replay_capacity": 64,
+  "lr": 1e-05,
+  "reward_threshold": 0.9,
+  "mode": "direct_code",
+  "action_version": 3,
+  "experiment": "synthetic-groups-v5-loadrank",
+  "input_mode": "full_instance",
+  "sampling_schedule": "grouped",
+  "epochs": 4,
+  "grpo": {
+    "clip": 0.2,
+    "beta": 0.01,
+    "advantage_eps": 0.0001,
+    "inner_updates": 1
+  },
+  "dataset": "datasets/synthetic-val128-v1/instances.json",
+  "score_mode": "synthetic_lb",
+  "instances_per_batch": 2,
+  "upstream_commit": "33ffc0ab4d82c86e84dac722f5c71662d8a06dfe",
+  "methods": [
+    "grpo",
+    "qcv",
+    "scalar_delta",
+    "row_delta"
+  ],
+  "cache_microbatch": 4,
+  "reward_table_prior_count": 1,
+  "reward_table_prior_value": 0,
+  "learning_rate": 1e-05,
+  "offline_q": "runs/offline-q-v3x",
+  "group_size": 8
+}

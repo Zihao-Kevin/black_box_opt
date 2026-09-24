@@ -3,8 +3,9 @@ import math
 import torch
 
 def dispatch_entropy(W,st):
-    labels=sorted({p['dispatch'] for p in W.grammar['plans']});lookup={s:i for i,s in enumerate(labels)}
-    ids=torch.tensor([lookup[W.grammar['plans'][int(a)]['dispatch']] for a in W.conf[W.leaf_np]],device=W.device)
+    key=lambda p:'|'.join(p['dispatch']) if isinstance(p['dispatch'],list) else p['dispatch']
+    labels=sorted({key(p) for p in W.grammar['plans']});lookup={s:i for i,s in enumerate(labels)}
+    ids=torch.tensor([lookup[key(W.grammar['plans'][int(a)])] for a in W.conf[W.leaf_np]],device=W.device)
     leaf_probs=(st['pn'][W.ent_node]*st['P'])[W.leaf]
     marginal=torch.zeros(len(labels),dtype=leaf_probs.dtype,device=W.device).index_add_(0,ids,leaf_probs)
     logp=marginal.clamp_min(torch.finfo(marginal.dtype).tiny).log()

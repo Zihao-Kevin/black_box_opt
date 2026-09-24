@@ -7,7 +7,9 @@ from .upstream_baselines import group_weights,relax_weights,Surrogate
 
 
 def prefix_states(grammar):
-    fields=[('dispatch',list(DISPATCH)),('tie_break',list(TIES)),('postprocess',list(POST)),('search_radius',[0,2,4,8])]
+    d0=grammar['plans'][0]['dispatch'];G=len(d0) if isinstance(d0,list) else 0
+    fields=([(('dispatch',g),list(DISPATCH)) for g in range(G)] if G else [('dispatch',list(DISPATCH))])+[('tie_break',list(TIES)),('postprocess',list(POST)),('search_radius',[0,2,4,8])]
+    get=lambda a,field:grammar['plans'][a][field[0]][field[1]] if isinstance(field,tuple) else grammar['plans'][a][field]
     nodes=len(grammar['parents']);desc=[set() for _ in range(nodes)]
     edges=[[] for _ in range(nodes)]
     for e,n in enumerate(grammar['entry_node']):edges[n].append(e)
@@ -19,7 +21,7 @@ def prefix_states(grammar):
             else:desc[n].update(desc[child])
         state[n,min(grammar['depths'][n],63)]=1.;offset=64
         for field,values in fields:
-            possible={grammar['plans'][a][field] for a in desc[n]}
+            possible={get(a,field) for a in desc[n]}
             if len(possible)==1:state[n,offset+values.index(next(iter(possible)))]=1.
             offset+=len(values)
     return state

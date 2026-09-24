@@ -5,6 +5,7 @@ import torch
 from transformers import AutoModelForCausalLM,AutoTokenizer
 from .data import ROOT,experiment_data,full_instance_context,write_json,digest,grouped_batches
 from .row_tree import make_grammar
+from .actions import FIELD_ORDER
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--config',required=True);p.add_argument('--out',required=True);p.add_argument('--limit',type=int,default=0);p.add_argument('--shard',type=int,default=0);p.add_argument('--shards',type=int,default=1);a=p.parse_args()
@@ -12,7 +13,7 @@ def main():
     torch.backends.cuda.matmul.allow_tf32=False
     data,split,_=experiment_data(cfg);pc=cfg['planner']
     tok=AutoTokenizer.from_pretrained(pc['model'],revision=pc['revision'],local_files_only=True)
-    grammar=make_grammar(tok);write_json(out/'grammar.json',grammar)
+    grammar=make_grammar(tok,cfg['planner'].get('field_order',FIELD_ORDER),groups=cfg['planner'].get('dispatch_groups',0),menu=cfg['planner'].get('dispatch_menu'),keyed=cfg['planner'].get('dispatch_keyed',False));write_json(out/'grammar.json',grammar)
     identity=digest(dict(config=cfg,grammar=grammar,dataset=split['dataset_sha256']))
     meta=out/'identity.json'
     if meta.exists() and json.loads(meta.read_text())['hash']!=identity:raise RuntimeError('Cache identity mismatch')
@@ -37,7 +38,7 @@ def main():
         for j in range(len(path)+1):where.setdefault(path[:j],(i,j))
     owner=[where[p] for p in paths];width=max(map(len,maximal));batch=cfg.get('cache_microbatch',4)
     for ni,n in enumerate(missing):
-        started=time.time();prompt=tok.apply_chat_template([{'role':'system','content':pc['system_prompt']},{'role':'user','content':full_instance_context(data[n])}],add_generation_prompt=True)
+        started=time.time();prompt=tok.apply_chat_template([{'role':'system','content':pc['system_prompt']},{'role':'user','content':full_instance_context(data[n])}],add_generation_prompt=True,tokenize=True,return_dict=False)
         if len(prompt)>pc['max_prompt_tokens']:raise ValueError('Prompt overflow')
         X=torch.empty(len(paths),model.config.intermediate_size);V0=torch.empty(len(paths),model.config.hidden_size)
         checks=[]

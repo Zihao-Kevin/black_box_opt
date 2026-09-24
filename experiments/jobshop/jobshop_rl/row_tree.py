@@ -3,24 +3,33 @@ Forced grammar tokens have probability one. Branch logits are normalized over th
 allowed next tokens, NOT over the original unrestricted vocabulary. Every action
 remains reachable. Frozen backbone prefix features are exact for last down_proj.
 """
-import json
+import json,itertools
 import numpy as np
 import torch
-from .actions import DISPATCH,TIES
+from .actions import DISPATCH,TIES,FIELDS,FIELD_ORDER
 from .row_math import TreeMath
 
 
-def make_grammar(tok):
+def make_grammar(tok,order=FIELD_ORDER,groups=0,menu=None,keyed=False):
+    """order places the four keys in the emitted JSON and therefore in the token tree.  The
+    enumeration below is deliberately independent of it: plan i is the same plan under every
+    order, so offline reward pools and tables indexed by action stay valid across a reorder."""
+    order=tuple(order)
+    if set(order)!=FIELDS or len(order)!=len(FIELDS):raise ValueError('Field order must permute the four plan fields')
     plans=[];texts=[];root={}
-    for dispatch in DISPATCH:
-        for tie in TIES:
-            for post,radius in [('none',0)]+[(p,r) for p in ('local_sort','local_insert','local_swap') for r in (2,4,8)]:
-                plan=dict(dispatch=dispatch,tie_break=tie,postprocess=post,search_radius=radius)
-                text=json.dumps(plan,separators=(',',':'));tokens=tok.encode(text,add_special_tokens=False)+[tok.eos_token_id]
-                node=root
-                for token in tokens:node=node.setdefault(token,{})
-                if node:raise ValueError('Nonunique canonical token sequence')
-                node['leaf']=len(plans);plans.append(plan);texts.append(text)
+    if groups:                                                     # version 3: one rule per machine group, tie/post fixed
+        menu=list(menu or DISPATCH);keys=keyed if isinstance(keyed,(list,tuple)) else [f'group{i}' for i in range(groups)]
+        ser=(lambda c:json.dumps({k:r for k,r in zip(keys,c)},separators=(',',':'))) if keyed else (lambda c:json.dumps({'dispatch':list(c)},separators=(',',':')))
+        items=[(dict(dispatch=list(c),tie_break='job_id',postprocess='none',search_radius=0),ser(c)) for c in itertools.product(menu,repeat=groups)]   # keyed: one named key per slot, so each decision has its own context
+    else:
+        items=[(dict(dispatch=d,tie_break=t,postprocess=p,search_radius=r),None) for d in DISPATCH for t in TIES for p,r in [('none',0)]+[(p,r) for p in ('local_sort','local_insert','local_swap') for r in (2,4,8)]]
+    for plan,text in items:
+        if text is None:text=json.dumps({k:plan[k] for k in order},separators=(',',':'))
+        tokens=tok.encode(text,add_special_tokens=False)+[tok.eos_token_id]
+        node=root
+        for token in tokens:node=node.setdefault(token,{})
+        if node:raise ValueError('Nonunique canonical token sequence')
+        node['leaf']=len(plans);plans.append(plan);texts.append(text)
     def skip(node,prefix):
         while 'leaf' not in node and len(node)==1:
             token,child=next(iter(node.items()));prefix=prefix+(token,);node=child
@@ -36,7 +45,7 @@ def make_grammar(tok):
         for e,token,child in todo:ec[e],conf[e]=walk(child,prefix+(token,),e,depth+1)
         return n,-1
     walk(root,(),-1,0)
-    return dict(plans=plans,texts=texts,prefixes=prefixes,parents=parents,depths=depths,entry_node=en,entry_token=et,entry_child=ec,conf=conf)
+    return dict(plans=plans,texts=texts,field_order=list(order),groups=groups,menu=list(menu) if groups else None,keyed=(list(keyed) if isinstance(keyed,(list,tuple)) else bool(keyed)),prefixes=prefixes,parents=parents,depths=depths,entry_node=en,entry_token=et,entry_child=ec,conf=conf)
 
 
 class RowTree(TreeMath):

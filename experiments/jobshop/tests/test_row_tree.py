@@ -16,6 +16,58 @@ def tiny():
 
 def paths():return [[2,0],[3,0],[4,1],[5,1]]
 
+def test_field_order_moves_the_decision_without_moving_the_action_index():
+    """A reorder must not silently repermute actions: offline pools and reward tables are
+    indexed by action, so plan i has to stay plan i."""
+    from jobshop_rl.actions import FIELD_ORDER,REWARD_LAST_ORDER
+    base=make_grammar(CharTokenizer());moved=make_grammar(CharTokenizer(),REWARD_LAST_ORDER)
+    assert base['plans']==moved['plans'] and base['field_order']==list(FIELD_ORDER)
+    assert moved['texts'][0].startswith('{"tie_break"') and base['texts'][0].startswith('{"dispatch"')
+    assert sorted(c for c in moved['conf'] if c>=0)==list(range(1500))
+    for g in (base,moved):
+        for e,c in enumerate(g['conf']):
+            if c>=0:assert validate_plan(g['plans'][c])
+    # Depth of the first branch that narrows the dispatch field: it carries ~98% of the reward,
+    # so at depth 0 the Q control variate settles it before any residual can act.
+    settled=[]
+    for g in (base,moved):
+        kids={}
+        for e,n in enumerate(g['entry_node']):kids.setdefault(n,[]).append(e)
+        under=[None]*len(g['entry_node'])
+        for e in sorted(range(len(g['entry_node'])),key=lambda e:-g['depths'][g['entry_node'][e]]):
+            under[e]=[g['conf'][e]] if g['entry_child'][e]<0 else [l for c in kids[g['entry_child'][e]] for l in under[c]]
+        levels=[]
+        for n,ee in kids.items():
+            allp={g['plans'][l]['dispatch'] for c in ee for l in under[c]}
+            if max(len({g['plans'][l]['dispatch'] for l in under[c]}) for c in ee)<len(allp):levels.append(g['depths'][n])
+        settled.append(min(levels))
+    assert settled[0]==0 and settled[1]>0,settled
+
+def test_group_grammar_and_solver_consistency():
+    """Version 3: 5^4 plans of one rule per machine group. A plan whose four groups agree must schedule exactly
+    like the single-rule plan, and the group rule must actually be consulted when they differ."""
+    from jobshop_rl.actions import MENU5,GROUPS,solve_plan
+    g=make_grammar(CharTokenizer(),groups=GROUPS,menu=MENU5)
+    assert len(g['plans'])==len(MENU5)**GROUPS and g['texts'][0].startswith('{"dispatch":[') and g['groups']==GROUPS
+    assert sorted(c for c in g['conf'] if c>=0)==list(range(len(g['plans']))) and all(validate_plan(p) for p in g['plans'])
+    rng=np.random.default_rng(3);nj,nm=6,5
+    inst=dict(name='t',duration_matrix=rng.integers(1,20,(nj,nm)).tolist(),machines_matrix=np.array([rng.permutation(nm) for _ in range(nj)]).tolist())
+    base=dict(tie_break='job_id',postprocess='none',search_radius=0)
+    for rule in MENU5:
+        assert solve_plan(inst,dict(dispatch=rule,**base))['makespan']==solve_plan(inst,dict(dispatch=[rule]*GROUPS,**base))['makespan']
+    mixed=[solve_plan(inst,dict(dispatch=list(c),**base))['makespan'] for c in [('est_spt','fifo','fifo','fifo'),('fifo','est_spt','est_spt','est_spt'),('completion','ratio','job_ready','est_spt')]]
+    assert len(set(mixed))>1
+
+def test_headroom_diagnostic_matches_the_exact_algebra():
+    from jobshop_rl.baseline_train import step_gradient
+    W,A,B=tiny();st=W.forward(A,B);W.token_lengths=[2]*4
+    table=np.array([.4,.1,.7,.9]);eps=[(p[0],p) for p in paths()]
+    _,d=step_gradient(W,st,A,B,'qcv',table,eps,[.2,.8,.1,.6],diagnose=True)
+    f=W.rewards_to_entries(table);Q,_=W.values(st,f);total,gain=W.rowwise(st,f)
+    assert abs(d['var_q']-total)<1e-6 and abs(d['row_delta_share']-gain/total)<1e-9
+    assert 0<=d['row_delta_share']<=1 and 0<d['q_residual_share']<=1
+    assert step_gradient(W,st,A,B,'qcv',table,eps,[.2,.8,.1,.6])[1]=={}
+
 def test_all_actions_reachable_once():
     g=make_grammar(CharTokenizer());assert len(g['plans'])==1500 and all(map(validate_plan,g['plans']))
     assert sorted(c for c in g['conf'] if c>=0)==list(range(1500))
@@ -59,7 +111,8 @@ def test_row_correction_unbiased_and_reduces_oracle_variance():
 def test_scalar_and_q_unbiased_for_arbitrary_fitted_table():
     W,A,B=tiny();st=W.forward(A,B);truth=W.rewards_to_entries([.2,.8,.1,.6]);fitted=W.rewards_to_entries([.4,.1,.7,.9]);Q,D,_=W.delta(st,fitted)
     probs=(st['pn'][W.ent_node]*st['P'])[W.leaf];flat=lambda p:torch.cat([x.flatten() for x in p]).double()
-    for c in [Q,Q+D]:
+    _,V=W.values(st,fitted)
+    for c in [Q,Q+D,V[W.ent_node]]:                                       # Q, Q+Delta and the state-value baseline are all unbiased
         estimates=torch.stack([flat(W.episode_grad(st,c,truth[p[0]],p)) for p in paths()])
         torch.testing.assert_close(probs@estimates,flat(W.true_grad(st,truth)),atol=2e-6,rtol=1e-5)
 

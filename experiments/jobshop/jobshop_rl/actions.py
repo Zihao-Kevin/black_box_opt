@@ -29,8 +29,26 @@ TIES = {
 }
 POST = ('none', 'local_sort', 'local_insert', 'local_swap')
 FIELDS = {'dispatch','tie_break','postprocess','search_radius'}
-PLAN_SYSTEM = '''Choose a job-shop scheduling algorithm to minimize makespan. Return ONLY a short JSON object with exactly these fields:
-{"dispatch":"est_spt","tie_break":"job_id","postprocess":"none","search_radius":0}
+# Order in which the four keys appear in the emitted JSON. It is not cosmetic: it fixes the
+# depth of each decision in the token tree, and dispatch alone settles ~98% of the reward, so
+# putting it first leaves the Q control variate almost nothing to correct downstream.
+FIELD_ORDER = ('dispatch','tie_break','postprocess','search_radius')
+REWARD_LAST_ORDER = ('tie_break','postprocess','search_radius','dispatch')
+# Version 3: one dispatch rule per machine group. Machines are split into `groups` contiguous
+# index ranges (group of machine m = m*groups//n_machines) and each candidate operation is scored
+# by its own machine's rule, so the plan is `groups` reward-bearing decisions instead of one.
+MENU5 = ('est_spt','job_ready','ratio','fifo','completion')
+GROUPS = 4
+EXAMPLE_PLAN = dict(dispatch='est_spt',tie_break='job_id',postprocess='none',search_radius=0)
+
+
+def plan_example(order=FIELD_ORDER):
+    return json.dumps({k:EXAMPLE_PLAN[k] for k in order},separators=(',',':'))
+
+
+# Unused by training: the live prompt is config['planner']['system_prompt'].
+PLAN_SYSTEM = '''Choose a job-shop scheduling algorithm to minimize makespan. Return ONLY a short JSON object with exactly these fields, in this order:
+''' + plan_example() + '''
 Dispatch rules:\n''' + '\n'.join(k+': '+v for k,v in DISPATCH.items()) + '\nTie breakers (used after dispatch score):\n' + '\n'.join(k+': '+v for k,v in TIES.items()) + '''
 Final ties use job index. A deterministic constructor schedules every job operation in precedence order.
 postprocess: none, local_sort, local_insert, local_swap.
@@ -41,8 +59,9 @@ All searches examine at most 64 neighbors, one deterministic pass. Radius is dis
 
 
 def validate_plan(plan):
-    return (isinstance(plan, dict) and set(plan)==FIELDS
-            and isinstance(plan['dispatch'],str) and plan['dispatch'] in DISPATCH
+    d=plan.get('dispatch') if isinstance(plan,dict) else None
+    ok_dispatch=(isinstance(d,str) and d in DISPATCH) or (isinstance(d,list) and len(d)>=2 and all(isinstance(x,str) and x in DISPATCH for x in d))
+    return (isinstance(plan, dict) and set(plan)==FIELDS and ok_dispatch
             and isinstance(plan['tie_break'],str) and plan['tie_break'] in TIES
             and isinstance(plan['postprocess'],str) and plan['postprocess'] in POST
             and type(plan['search_radius']) is int
@@ -98,7 +117,8 @@ def solve_plan(instance, plan):
             ties={'job_id':j,'duration':d,'remaining_ops':ops,'remaining_work':rw[j], 'machine_id':m,
                   'machine_time':mt[m],'machine_load':load[m],'est':est,'precedence_gap':est-jt[j],
                   'random_tiebreak':((j+1)*1103515245+(o+1)*12345)%2147483647}
-            choices.append((keys[plan['dispatch']]+(ties[plan['tie_break']],j),j))
+            rule=plan['dispatch']; rule=rule[m*len(rule)//nm] if isinstance(rule,list) else rule
+            choices.append((keys[rule]+(ties[plan['tie_break']],j),j))
         j=min(choices)[1]; o=ix[j]; m=ms[j][o]; d=ds[j][o]
         jt[j]=mt[m]=max(jt[j],mt[m])+d; ix[j]+=1; rw[j]-=d; load[m]-=d; seq.append(j)
     best=decode(seq); evaluations=accepted=0; radius=plan['search_radius']; kind=plan['postprocess']

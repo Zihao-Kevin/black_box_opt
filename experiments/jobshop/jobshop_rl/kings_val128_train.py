@@ -11,7 +11,14 @@ from .dispatch_entropy import dispatch_entropy
 from .evaluator import Evaluator,InfrastructureError
 from .actions import build_code
 
-METHODS=('qcv','row_delta','grpo','relax','rloo','otb','reinforce')
+METHODS=('qcv','scalar_delta','vbase','row_delta','grpo','relax','rloo','otb','reinforce')
+# Cached features are the frozen backbone's hidden states at the grammar prefixes. They depend on
+# the planner, the dataset and the batch schedule; these keys only steer the optimizer, so a cache
+# built under one setting is valid under another. Everything else must still match exactly.
+TRAINING_ONLY=('learning_rate','lr','optimizer','entropy_beta','headroom_every','group_size','instances_per_batch','offline_q','save_every')
+# group_size / instances_per_batch shape the batch schedule, which the feature builder used only to pick WHICH
+# instances to cache; the check in run() below verifies every scheduled instance is present instead.
+def cache_relevant(cfg):return {k:v for k,v in cfg.items() if k not in TRAINING_ONLY}
 
 def append(path,value):
     with Path(path).open('a') as f:f.write(json.dumps(value,allow_nan=False)+'\n');f.flush();os.fsync(f.fileno())
@@ -108,19 +115,21 @@ def run(args):
     lock=(out/'trainer.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     if (out/'complete.json').exists():return
     data,split,_=experiment_data(cfg)
-    assert json.loads((cache/'identity.json').read_text())['config']==cfg,'Backbone cache configuration mismatch'
+    assert cache_relevant(json.loads((cache/'identity.json').read_text())['config'])==cache_relevant(cfg),'Backbone cache configuration mismatch'
     grammar=json.loads((cache/'grammar.json').read_text());common=torch.load(cache/'common.pt',map_location='cpu',weights_only=False)
     initA,initB=actor_initialization(common,args.seed);A=initA.cuda().requires_grad_();B=initB.cuda().requires_grad_()
-    refA,refB=initA.cuda(),initB.cuda();optimizer=torch.optim.Adam([A,B],lr=cfg['learning_rate']);rng=np.random.default_rng(args.seed)
+    refA,refB=initA.cuda(),initB.cuda();beta_ent=cfg.get('entropy_beta',.1);headroom=cfg.get('headroom_every',64)
+    optimizer=(torch.optim.SGD if cfg.get('optimizer','adam')=='sgd' else torch.optim.Adam)([A,B],lr=cfg['learning_rate']);rng=np.random.default_rng(args.seed)
     extra=BaselineAdapter(grammar) if args.method in ('otb','rloo','relax') else None
     if extra:extra.gen.manual_seed(20260921+args.seed)
     q=None;poolhash=None;tablehash=None
-    if args.method in ('qcv','row_delta'):
-        tables,tablehash=load_frozen_tables(ROOT/'runs/offline-q-v1/model/selected-tables.json',split['train'],len(grammar['plans']))
-        pool=json.loads((ROOT/'runs/offline-q-v1/data/pool.json').read_text());meta=json.loads((ROOT/'runs/offline-q-v1/model/complete.json').read_text());poolhash=digest(pool)
+    if args.method in ('qcv','row_delta','scalar_delta','vbase'):
+        qdir=ROOT/cfg.get('offline_q','runs/offline-q-v1')
+        tables,tablehash=load_frozen_tables(qdir/'model/selected-tables.json',split['train'],len(grammar['plans']))
+        pool=json.loads((qdir/'data/pool.json').read_text());meta=json.loads((qdir/'model/complete.json').read_text());poolhash=digest(pool)
         assert poolhash==meta['pool_sha256'] and tablehash==meta['table_sha256']
         q=DynamicReward(pool,tables,data,grammar['plans'],steps=1000)
-    ident=dict(version='kings-val128-n10-v1',method=args.method,seed=args.seed,actor_init_seed=42+args.seed,config=cfg,cache=common['identity'],entropy_beta=.1,epochs=32,pool_sha256=poolhash,table_sha256=tablehash)
+    ident=dict(version='kings-val128-n10-v1',method=args.method,seed=args.seed,actor_init_seed=42+args.seed,config=cfg,cache=common['identity'],entropy_beta=beta_ent,epochs=32,pool_sha256=poolhash,table_sha256=tablehash)
     identity=digest(ident);checkpoint=out/'checkpoint.pt';state=dict(updates=0,candidates=0,wall_seconds=0.,q_refit_seconds=0.)
     last_records=[];last_metric=None
     def save():
@@ -153,6 +162,8 @@ def run(args):
         s=evaluate(cfg,cache,grammar,common,A,B,data,split['val'],ev,out,f'val-epoch-{epoch}');select_best(s,epoch)
         write_json(out/'progress.json',dict(updates=n,epoch=epoch,validation=s,updated_at=time.time()))
     boundary();schedule=grouped_batches(split['train'],32,args.seed,cfg['group_size'],cfg['instances_per_batch']);steps=0
+    missing=sorted({n for b in schedule for n in b if not (cache/f'{n}.pt').exists()})
+    if missing:raise RuntimeError(f'{len(missing)} scheduled instances have no cached features, e.g. {missing[:3]}')
     for batch in schedule[state['updates']:]:
         start=time.time();names=list(dict.fromkeys(batch));grad=[torch.zeros_like(A),torch.zeros_like(B)];records=[];diags=[]
         write_json(out/'pending.json',dict(update=state['updates']+1,names=names))
@@ -165,17 +176,18 @@ def run(args):
             elif args.method=='reinforce':g,diag=reinforce_gradient(W,st,episodes,rewards)
             else:
                 table=q.tables[name] if q else np.zeros(len(grammar['plans']));ref=W.forward(refA,refB) if args.method=='grpo' else None
-                g,diag=step_gradient(W,st,A,B,args.method,table,episodes,rewards,ref,cfg['grpo']['beta'])
+                g,diag=step_gradient(W,st,A,B,args.method,table,episodes,rewards,ref,cfg['grpo']['beta'],bool(headroom) and state['updates']%headroom==0)
                 if q:diag.update(q.prediction_errors(local))
                 del ref
-            eg,ed=dispatch_entropy(W,st);diag.update(ed);diag['entropy_beta']=.1
-            for dest,value,ent in zip(grad,g,eg):dest.add_((value+.1*ent)/len(names))
+            eg,ed=dispatch_entropy(W,st);diag.update(ed);diag['entropy_beta']=beta_ent
+            for dest,value,ent in zip(grad,g,eg):dest.add_((value+beta_ent*ent)/len(names))
             diags.append(diag);del W,st,g,eg
         norm=float(sum(v.square().sum() for v in grad).sqrt())
         if not np.isfinite(norm):raise RuntimeError('Nonfinite gradient')
         optimizer.zero_grad(set_to_none=True);A.grad=-grad[0];B.grad=-grad[1];optimizer.step()
         if not torch.isfinite(A).all() or not torch.isfinite(B).all():raise RuntimeError('Nonfinite actor')
         if q:q.observe(records)
+        if cfg.get('save_every') and (state['updates']+1)%cfg['save_every']==0:atomic_save(out/f"actor-{state['updates']+1}.pt",dict(A=A.detach().cpu(),B=B.detach().cpu(),update=state['updates']+1))   # per-update actors for exact learning curves
         state['updates']+=1;state['candidates']+=len(records);state['wall_seconds']+=time.time()-start
         last_records=records;last_metric=dict(method=args.method,seed=args.seed,counts=dict(state),mean_batch_reward=float(np.mean([r['reward'] for r in records])),gradient_norm=norm,diagnostics=diags,peak_gpu_bytes=torch.cuda.max_memory_allocated(),q_unique_labels=len(q.known) if q else 0)
         save()
