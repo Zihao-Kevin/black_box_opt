@@ -1,0 +1,22 @@
+# conda env create -f environment.yml && conda activate black_box_opt
+# The JobShop experiment pins its own versions: see experiments/jobshop/README.md.
+name: black_box_opt
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - numpy>=2.0
+  - scipy>=1.13
+  - matplotlib>=3.9
+  - jupyter
+  - nbconvert
+  - pip:
+      - torch>=2.3
+      - transformers>=4.44
+      - peft>=0.11
+      - accelerate
+      - openai>=1.0
+      - python-dotenv>=1.0
+      - mcp
+      - pytest

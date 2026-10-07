@@ -1,33 +1,56 @@
-# LaTeX build artifacts
+# Python / editors / OS
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store
+
+# Secrets
+.env
+!.env.example
+
+# Paper sources and LaTeX builds (the paper lives outside this repo)
+*.tex
+*.bib
 .aux/
 *.aux
-*.log
 *.fls
 *.fdb_latexmk
 *.synctex.gz
-*.synctex(busy)
 *.out
 *.toc
 *.bbl
 *.blg
-*.nav
-*.snm
-*.vrb
-*/*_tmp*
-*/*_long_runs*
-*.tex
-*_free_runs*
-*_qp_rowwise_runs*
-*_qp_adam_runs*/
-*_qp_offline_runs*/
-*_sgd_long*/
-*.npz*
-*.bib*
-*paper_figs_src*/
-# macOS / Python
-.DS_Store
-__pycache__/
+/*.pdf
 
-# secrets
-.env
-!.env.example
+# Generated figures (rebuild with: python paper_figs_src/make_paper_figs.py)
+/*.png
+_*.png
+paper_figs/
+paper_figs_src/png/
+paper_figs_src/*.npz
+
+# Logs and scratch
+*.log
+_tmp/
+_scratch/
+
+# Run caches: everything inside a run folder is ignored except its code and small input data
+**/_*runs*/**
+**/_sgd_long/**
+*_runs*.npz
+!**/_*runs*/**/
+!**/_sgd_long/**/
+!**/_*runs*/**/*.py
+# _sgd_long/: only the pipeline behind the paper's live-agent figures (offline protocol)
+!**/_sgd_long/offline.py
+!**/_sgd_long/offline_data.json
+!**/_sgd_long/worker.py
+!**/_sgd_long/worker_fix.py
+!**/_sgd_long/launch_offline.sh
+!**/_sgd_long/launch_offline_lr.sh
+!**/_sgd_long/launch_offline_graded.sh
+!**/_sgd_long/decomp/README.md
+!**/_sgd_long/decomp/decompose.py
+!**/_sgd_long/decomp/launch_offline.sh
+!**/_sgd_long/decomp/launch_offline_lr.sh
