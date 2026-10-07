@@ -199,8 +199,12 @@ class World:
         ga = self.g * a; ve = v[en]; u = ga / rms[en] - ve * (ve * ga).sum(-1, keepdim=True) / (v.shape[1] * rms[en] ** 3)   # through the RMSNorm
         P = lp.exp(); tot = torch.zeros(self.N, dtype=torch.float64, device=P.device).index_add_(0, en, P); P = P / tot[en]
         BU = u @ B; XAe = XA[en]
-        K = self.s ** 2 * ((u @ u.T) * (XAe @ XAe.T) + (BU @ BU.T) * self.XX[job][en][:, en])
-        return dict(P=P, pb=torch.exp(self.taken @ torch.log(P.clamp_min(1e-300))), K=K.double(), u=u, BU=BU, XAe=XAe, Xe=X[en])
+        XXe, ZZ = self.XX[job][en][:, en], XAe @ XAe.T                       # the input gram of each row block
+        KA, KB = self.s ** 2 * (BU @ BU.T), self.s ** 2 * (u @ u.T)          # the backprop factor of each block: K = KA*XXe + KB*ZZ
+        K = KB * ZZ + KA * XXe
+        return dict(P=P, pb=torch.exp(self.taken @ torch.log(P.clamp_min(1e-300))), K=K.double(), u=u, BU=BU, XAe=XAe, Xe=X[en],
+                    XX=XXe.double(), ZZ=ZZ.double(), nx=XXe.diagonal().double().clamp_min(1e-30), nz=ZZ.diagonal().double().clamp_min(1e-30),
+                    KA=KA.double(), KB=KB.double())
 
     def grad(self, tr, w):
         """(sum_e w_e * score_e) as (dA, dB) for entry weights w (E,)."""
@@ -231,6 +235,36 @@ def Delta_table(W, tr, f, Q, solver="pinv"):
     except Exception:                                                      # a deterministic policy: nothing left to cancel
         return torch.zeros_like(b)
 
+# ---------------------------------------------------------------- the row-wise residual (as in Live_agent_rowwise.ipynb)
+def increments(W, tr, c, f):
+    """xi (E, E): how the estimator's conditional mean moves when the answer takes entry e; zero mean over each node's branches."""
+    A = weights(W, tr, c, f); n = tr["pb"] @ W.taken
+    cond = ((W.taken * tr["pb"][:, None]).T @ A) / n.clamp_min(1e-300)[:, None]
+    mean = torch.zeros(W.N, A.shape[1], dtype=A.dtype, device=A.device).index_add_(0, W.ent_node, tr["P"][:, None] * cond)
+    return cond - mean[W.ent_node]
+
+
+def row_parts(W, tr, xi, e=slice(None)):
+    """the coefficient of xi's projection on each row's own input, per block: c[e, m] = xi[e, m] <x_m, x_e> / |x_e|^2."""
+    return xi * tr["XX"][e] / tr["nx"][e][:, None], xi * tr["ZZ"][e] / tr["nz"][e][:, None]
+
+
+def noise_row(W, tr, c, f, xi):
+    """exact Var once the row-wise residual built from xi is subtracted (xi = increments of the table the run actually has)."""
+    x = increments(W, tr, c, f); left = ((x @ tr["K"]) * x).sum(1)
+    for a, b, KK, nn in zip(row_parts(W, tr, x), row_parts(W, tr, xi), (tr["KA"], tr["KB"]), (tr["nx"], tr["nz"])):
+        left = left + nn * (((b @ KK) * b).sum(1) - 2 * ((a @ KK) * b).sum(1))       # |Pi xi|^2 - 2 <Pi x, Pi xi>, block by block
+    return float((tr["pb"] @ W.taken) @ left)
+
+
+def row_correction(W, tr, xi, y):
+    """what one episode subtracts, as (dA, dB): the row-wise projection of xi at every entry on the path of leaf y."""
+    e = W.taken[y].nonzero().squeeze(1)
+    cA, cB = row_parts(W, tr, xi[e], e)
+    return (W.s * torch.einsum("er,ej->rj", (cA @ tr["BU"].double()).float(), tr["Xe"][e]),
+            W.s * torch.einsum("ei,eq->iq", (cB @ tr["u"].double()).float(), tr["XAe"][e]))
+
+
 class Seen:
     def __init__(self): self.n, self.sum, self.all = np.zeros(len(CONFIGS)), np.zeros(len(CONFIGS)), []
     def add(self, conf, f):
@@ -241,13 +275,15 @@ class Seen:
         return np.where(OVER_CAP, 0.0, (self.sum + prior * m) / (self.n + prior))
 
 def control_variate(method, W, tr, seen, f_true, solver):
+    """the table c, and for the row-wise methods the increments its residual is built from (None otherwise)."""
     if method == "REINFORCE":
-        return torch.full_like(tr["P"], np.mean(seen.all) if seen.all else 0.0)
+        return torch.full_like(tr["P"], np.mean(seen.all) if seen.all else 0.0), None
     if "exact" in method: f = f_true
     else:
         fh = seen.f_hat(zero="0" in method); f = torch.tensor(np.where(W.conf >= 0, fh[np.maximum(W.conf, 0)], 0.0), device="cuda")
     Q = Q_table(W, tr, f)
-    return Q + Delta_table(W, tr, f, Q, solver) if "Δ" in method else Q
+    if "row" in method: return Q, increments(W, tr, Q, f)               # the residual is built from this table's increments
+    return (Q + Delta_table(W, tr, f, Q, solver) if "Δ" in method else Q), None
 
 
 def alignment(W, tr, pairs=2000, seed=0):
@@ -293,21 +329,26 @@ def train(args):
                 gA, gB, s_now = 0.0, 0.0, []; d = collections.Counter(); log_now = step % args.log_every == 0
                 for j in jobs:
                     tr = W.tree(j, A, B); f = W.f[j]; s_now.append(float(tr["pb"] @ f))
-                    c = control_variate(method, W, tr, seen[j], f, args.solver)
+                    c, xi = control_variate(method, W, tr, seen[j], f, args.solver)
                     if log_now:                                          # exact diagnostics at the current policy
                         Ef = s_now[-1]; Qx = Q_table(W, tr, f)
                         d["rf"] += noise(W, tr, torch.full_like(tr["P"], Ef), f); d["own"] += noise(W, tr, c, f)
                         d["Q"] += noise(W, tr, Qx, f); d["QD"] += noise(W, tr, Qx + Delta_table(W, tr, f, Qx, args.solver), f)
+                        d["QR"] += noise_row(W, tr, Qx, f, increments(W, tr, Qx, f))      # the row-wise Delta* at the exact table
                         dA, dB = W.grad(tr, tr["pb"] @ (W.taken * f[:, None])); d["gA"] = d["gA"] + dA / len(jobs); d["gB"] = d["gB"] + dB / len(jobs)
                     if step < args.steps:
                         ys = rng.choice(W.L, size=args.episodes, p=(tr["pb"] / tr["pb"].sum()).cpu().numpy())
-                        dA, dB = W.grad(tr, weights(W, tr, c, f)[ys].mean(0)); gA = gA + dA / len(jobs); gB = gB + dB / len(jobs)
+                        dA, dB = W.grad(tr, weights(W, tr, c, f)[ys].mean(0))
+                        if xi is not None:                                                # minus the row-wise residual of each episode
+                            rA, rB = (torch.stack(t).mean(0) for t in zip(*[row_correction(W, tr, xi, y) for y in ys]))
+                            dA, dB = dA - rA, dB - rB
+                        gA = gA + dA / len(jobs); gB = gB + dB / len(jobs)
                         for y in ys: seen[j].add(W.conf[y], float(f[y]))
                     del tr
                 succ.append(s_now)
                 if log_now:
                     g2 = float(d["gA"].pow(2).sum() + d["gB"].pow(2).sum()); n2 = len(jobs) ** 2 * args.episodes
-                    diag.append([step, d["rf"], d["own"], d["Q"], d["QD"], g2, n2])
+                    diag.append([step, d["rf"], d["own"], d["Q"], d["QD"], g2, n2, d["QR"]])
                 if step < args.steps:
                     opt.zero_grad(); A.grad, B.grad = -gA, -gB; opt.step()
             np.savez(path, success=np.array(succ), diag=np.array(diag), jobs=np.array(jobs))
@@ -317,7 +358,7 @@ def train(args):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("cmd", choices=("prep", "stats", "train"))
     ap.add_argument("--format", default="slots", choices=("slots", "manifest")); ap.add_argument("--gpu", default="1"); ap.add_argument("--lora_seed", type=int, default=0)
-    ap.add_argument("--lenient", action="store_true"); ap.add_argument("--jobs", default="all"); ap.add_argument("--methods", default="REINFORCE,Q,Q + Δ,Q (exact),Q + Δ (exact)")
+    ap.add_argument("--lenient", action="store_true"); ap.add_argument("--jobs", default="all"); ap.add_argument("--methods", default="REINFORCE,Q,Q + Δ,Q (exact),Q + Δ (exact)")   # "row" in a name selects the row-wise residual
     ap.add_argument("--seeds", default="0"); ap.add_argument("--steps", type=int, default=150); ap.add_argument("--episodes", type=int, default=1); ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--log_every", type=int, default=10); ap.add_argument("--solver", default="ridge", choices=("pinv", "ridge")); ap.add_argument("--out", default=os.path.join(HERE, "_long_runs"))
     ap.add_argument("--cache", default=HERE, help="where the cached forward passes live (about 2 GB; use a local disk)")

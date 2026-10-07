@@ -1,4 +1,4 @@
-# Black-box optimization with Q + Δ*
+# Black-box optimization with Q + Delta^*
 
 We train a model whose output is scored by a black box (a solver, a tool-using agent, a scheduler). Plain REINFORCE gradients are noisy. We fit a reward model from the paid calls and use it as a control variate: Q removes most of the noise, and the row-wise residual Δ* removes more. The gradient stays unbiased.
 
