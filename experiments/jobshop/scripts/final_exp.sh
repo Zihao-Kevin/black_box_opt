@@ -3,9 +3,10 @@
 # Needs 8 GPUs
 set -euo pipefail
 
-PY=${PY:-"/net/csefiles/siemens/warriors-ls-recovery/users/zzhao628/#113442817/anaconda3/envs/bilevel/bin/python"}
-ROOT=/nethome/zzhao628/blogs/black_box_opt/experiments/jobshop
-DATA=/data/zzhao628
+PY=${PY:-python}
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+DATA=${JOBSHOP_DATA:-$ROOT/data}               # caches, label pools, checkpoints (tens of GB)
+export JOBSHOP_DATA=$DATA
 CACHE=$DATA/jobshop-v3
 CFG=configs/synthetic-val128-v3-groups.json
 LR=0.5; K=400; SEEDS=10-49; STOP=256; SLOTS=48; GPUS=8
@@ -13,7 +14,7 @@ CFGDIR=$DATA/run13-lr$LR-configs; STEM=v3q-sgd-lr$LR-beta0-g2i1-save
 SAVE=$DATA/run13-lr$LR/$STEM
 RESULT=$ROOT/results/v3-fitted$K-curves-lr$LR.json
 FROM=${FROM:-0}; UNTIL=${UNTIL:-9}
-export HF_HOME=$DATA/hf
+export HF_HOME=${HF_HOME:-$DATA/hf}
 cd "$ROOT"
 stage () { [ "$FROM" -le "$1" ] && [ "$UNTIL" -ge "$1" ] && { echo; echo "== stage $1: $2"; return 0; } || return 1; }
 have  () { [ -e "$1" ] && [ "$FROM" -eq 0 ]; }

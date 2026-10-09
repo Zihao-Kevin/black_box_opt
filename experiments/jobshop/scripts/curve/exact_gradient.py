@@ -12,12 +12,12 @@ instance and the initial actor match the qcv run of that seed, true_grad agrees 
 a finite difference of J along the gradient matches |g|^2, and the mean of REINFORCE samples converges to it."""
 import argparse,json,os,sys,time,numpy as np,torch
 from pathlib import Path
-ROOT='/nethome/zzhao628/blogs/black_box_opt/experiments/jobshop';sys.path.insert(0,ROOT);os.chdir(ROOT)
+ROOT=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))));DATA=os.environ.get('JOBSHOP_DATA',os.path.join(ROOT,'data'));sys.path.insert(0,ROOT);os.chdir(ROOT)
 from jobshop_rl.data import experiment_data,grouped_batches,write_json,digest
 from jobshop_rl.baseline_train import load_tree,atomic_save
 from jobshop_rl.kings_val128_train import actor_initialization,cache_relevant
-CACHE=Path('/data/zzhao628/jobshop-v3');POOL='/data/zzhao628/offline-q-v3x/data/pool.json'
-CAMPAIGN=Path('/data/zzhao628/run13-lr0.5/v3q-sgd-lr0.5-beta0-g2i1-save')      # the sampled runs the reference is matched to
+CACHE=Path(DATA)/'jobshop-v3';POOL=os.path.join(DATA,'offline-q-v3x/data/pool.json')
+CAMPAIGN=Path(DATA)/'run13-lr0.5/v3q-sgd-lr0.5-beta0-g2i1-save'      # the sampled runs the reference is matched to
 
 def setup(config):
     torch.set_num_threads(1);torch.backends.cuda.matmul.allow_tf32=False

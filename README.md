@@ -14,9 +14,9 @@ cp mcp_dfl_prototype/.env.example mcp_dfl_prototype/.env   # add OPENAI_API_KEY 
 
 | Folder | Task | Start here |
 |---|---|---|
-| `toy_example/` | Decision-focused learning on a small QP | `DFL_QP_Black_Box_new.ipynb` |
-| `mcp_dfl_prototype/` | An LLM picks MCP tool servers for a live agent | `Live_agent_rowwise.ipynb` |
-| `experiments/jobshop/` | An LLM picks job-shop scheduling rules | its own `README.md` |
+| `toy_example/` | Decision-focused learning on a small QP | `qp_experiment.ipynb` |
+| `mcp_dfl_prototype/` | An LLM picks MCP tool servers for a live agent | `mcp_experiment.ipynb` |
+| `experiments/jobshop/` | An LLM picks job-shop scheduling rules | `jobshop_experiment.ipynb` |
 
 `baselines.py` holds RLOO, GRPO, OTB and LAX/RELAX.
 

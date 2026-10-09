@@ -3,8 +3,8 @@ Same shape as the published pool (name, action, reward, actual_makespan, source,
 import json,os,sys,numpy as np
 from multiprocessing import Pool
 from pathlib import Path
-sys.path.insert(0,'/nethome/zzhao628/blogs/black_box_opt/experiments/jobshop');os.chdir('/nethome/zzhao628/blogs/black_box_opt/experiments/jobshop')
-os.environ.setdefault('HF_HOME','/data/zzhao628/hf')
+ROOT=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))));DATA=os.environ.get('JOBSHOP_DATA',os.path.join(ROOT,'data'));sys.path.insert(0,ROOT);os.chdir(ROOT)
+os.environ.setdefault('HF_HOME',os.path.join(DATA,'hf'))
 from jobshop_rl.data import experiment_data
 from jobshop_rl.actions import build_code,MENU5,GROUPS
 cfg=json.loads(Path('configs/synthetic-val128-v3-groups.json').read_text());data,split,_=experiment_data(cfg)
@@ -24,5 +24,5 @@ def work(chunk):
 if __name__=='__main__':
     W=64;chunks=[jobs[i::W] for i in range(W)]
     with Pool(W) as p:rows=[r for part in p.map(work,chunks) for r in part]
-    rows.sort(key=lambda r:(r['name'],r['action']));out=Path('/data/zzhao628/offline-q-v3x');(out/'data').mkdir(parents=True,exist_ok=True)
+    rows.sort(key=lambda r:(r['name'],r['action']));out=Path(DATA)/'offline-q-v3x';(out/'data').mkdir(parents=True,exist_ok=True)
     (out/'data/pool.json').write_text(json.dumps(rows));print('POOL DONE',len(rows),'rows, mean reward %.4f'%np.mean([r['reward'] for r in rows]),flush=True)

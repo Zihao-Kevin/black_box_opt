@@ -2,8 +2,8 @@
 methods comma-separated; seeds as a-b inclusive. One run per (config, seed, method), GPUs round-robin."""
 import json,os,subprocess,sys,time
 from pathlib import Path
-ROOT=Path('/nethome/zzhao628/blogs/black_box_opt/experiments/jobshop')
-PY='/net/csefiles/siemens/warriors-ls-recovery/users/zzhao628/#113442817/anaconda3/envs/bilevel/bin/python'
+ROOT=Path(__file__).resolve().parents[2];DATA=os.environ.get('JOBSHOP_DATA',str(ROOT/'data'))
+PY=sys.executable
 out,cfgdir,methods,seeds,stop,slots=Path(sys.argv[1]),Path(sys.argv[2]),sys.argv[3].split(','),sys.argv[4],sys.argv[5],sys.argv[6]
 a,b=map(int,seeds.split('-'));seeds=list(range(a,b+1))
 out.mkdir(parents=True,exist_ok=True);sl=out/'solver-slots';sl.mkdir(exist_ok=True);(sl/'limit.json').write_text(json.dumps({'slots':int(slots)}))
@@ -13,8 +13,8 @@ for i,(cfg,seed,m) in enumerate(jobs):
     tag=f'{cfg.stem}/seed-{seed}/{m}';dest=out/tag;dest.mkdir(parents=True,exist_ok=True)
     if (dest/'complete.json').exists():continue
     env={**os.environ,'CUDA_VISIBLE_DEVICES':str(i%8),'JOBSHOP_EVALUATOR':'persistent-v1','PYTHONPATH':str(ROOT),
-         'HF_HOME':'/data/zzhao628/hf','OMP_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1','MKL_NUM_THREADS':'1'}
-    cmd=[PY,'-u','-m','jobshop_rl.kings_val128_train','--config',str(cfg),'--cache',os.environ.get('JOBSHOP_CACHE','/data/zzhao628/jobshop-v2'),'--out',str(dest),
+         'HF_HOME':os.environ.get('HF_HOME',os.path.join(DATA,'hf')),'OMP_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1','MKL_NUM_THREADS':'1'}
+    cmd=[PY,'-u','-m','jobshop_rl.kings_val128_train','--config',str(cfg),'--cache',os.environ.get('JOBSHOP_CACHE',os.path.join(DATA,'jobshop-v2')),'--out',str(dest),
          '--method',m,'--seed',str(seed),'--slot-dir',str(sl),'--docker-slots',slots,'--stop-after',stop]
     f=(dest/'trainer.log').open('ab',buffering=0)
     children[tag]=subprocess.Popen(cmd,stdin=subprocess.DEVNULL,stdout=f,stderr=subprocess.STDOUT,env=env);time.sleep(.3)

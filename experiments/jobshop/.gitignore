@@ -8,3 +8,4 @@ wandb/
 *.pt
 .env*
 .netrc
+data/

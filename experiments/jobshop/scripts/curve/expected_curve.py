@@ -3,15 +3,15 @@ instances (exhaustive val table) and the 128 train instances (exhaustive offline
 usage: expected_curve.py RUN_CONFIG_DIR OUT_JSON   (env JOBSHOP_SHARD=i/n to split runs across GPUs)"""
 import json,os,sys,numpy as np,torch
 from pathlib import Path
-sys.path.insert(0,'/nethome/zzhao628/blogs/black_box_opt/experiments/jobshop');os.chdir('/nethome/zzhao628/blogs/black_box_opt/experiments/jobshop')
+ROOT=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))));DATA=os.environ.get('JOBSHOP_DATA',os.path.join(ROOT,'data'));sys.path.insert(0,ROOT);os.chdir(ROOT)
 from jobshop_rl.baseline_train import load_tree
 from jobshop_rl.data import experiment_data
 cdir,outp=Path(sys.argv[1]),Path(sys.argv[2]);sh,nsh=map(int,os.environ.get('JOBSHOP_SHARD','0/1').split('/'))
-cache=Path('/data/zzhao628/jobshop-v3');cfg=json.loads(Path('configs/synthetic-val128-v3-groups.json').read_text());data,split,_=experiment_data(cfg)
+cache=Path(DATA)/'jobshop-v3';cfg=json.loads(Path('configs/synthetic-val128-v3-groups.json').read_text());data,split,_=experiment_data(cfg)
 g=json.loads((cache/'grammar.json').read_text());common=torch.load(cache/'common.pt',map_location='cpu',weights_only=False)
 conf=np.array(g['conf']);leaf=np.array(g['entry_child'])<0;leaf_action=conf[leaf]
-tables={'train':json.load(open('/data/zzhao628/offline-q-v3x/model/selected-tables.json'))}
-vt=json.load(open('/data/zzhao628/val-table-v3/data/pool.json'));T={}
+tables={'train':json.load(open(os.path.join(DATA,'offline-q-v3x/model/selected-tables.json')))}
+vt=json.load(open(os.path.join(DATA,'val-table-v3/data/pool.json')));T={}
 for r in vt:T.setdefault(r['name'],np.zeros(625))[r['action']]=r['reward']
 tables['val']=T
 runs=sorted(cdir.glob('seed-*/*'))[sh::nsh];actors={}

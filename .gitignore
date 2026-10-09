@@ -42,15 +42,17 @@ _scratch/
 !**/_*runs*/**/
 !**/_sgd_long/**/
 !**/_*runs*/**/*.py
-# _sgd_long/: only the pipeline behind the paper's live-agent figures (offline protocol)
-!**/_sgd_long/offline.py
+# the MCP offline dataset, read by mcp_experiment.ipynb
 !**/_sgd_long/offline_data.json
-!**/_sgd_long/worker.py
-!**/_sgd_long/worker_fix.py
-!**/_sgd_long/launch_offline.sh
-!**/_sgd_long/launch_offline_lr.sh
-!**/_sgd_long/launch_offline_graded.sh
-!**/_sgd_long/decomp/README.md
-!**/_sgd_long/decomp/decompose.py
-!**/_sgd_long/decomp/launch_offline.sh
-!**/_sgd_long/decomp/launch_offline_lr.sh
+
+# Superseded by the *_experiment.ipynb notebooks (kept locally): the old notebooks and the scripts that run their cells
+toy_example/DFL_QP_Black_Box_new.ipynb
+toy_example/qp_offline.py
+toy_example/qp_frozen.py
+toy_example/qp_online_linear.py
+toy_example/plot_qp_frozen.py
+toy_example/plot_qp_online_linear.py
+toy_example/_qp_adam_runs/rerun.py
+toy_example/_qp_sgd_runs/rerun_sgd.py
+mcp_dfl_prototype/Live_agent_rowwise.ipynb
+mcp_dfl_prototype/Live_agent_w_baselines.ipynb
